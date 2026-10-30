@@ -156,7 +156,6 @@ internal object Glyphs {
     val Down2 = strokeIcon("chevron-down", "M6 9l6 6 6-6")
     val Check = strokeIcon("check", "M5 12l5 5L20 7")
     val Gear = strokeIcon("gear", "M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1")
-    val Heart = strokeIcon("heart", "M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z")
     val Info = strokeIcon("info", "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M12 11v6M12 7.5v.5")
     val Folder = strokeIcon("folder", "M3 6h6l2 2h10v11H3z")
     val Lock = strokeIcon("lock", "M6 11h12v10H6zM8 11V8a4 4 0 0 1 8 0v3")

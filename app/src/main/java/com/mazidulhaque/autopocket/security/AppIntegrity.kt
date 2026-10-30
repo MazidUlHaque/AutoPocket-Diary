@@ -9,9 +9,11 @@ import java.security.MessageDigest
 
 /** Checks that this copy of the app was signed with the developer's official key. */
 object AppIntegrity {
-    enum class Status { OFFICIAL, UNOFFICIAL, DEVELOPMENT_BUILD }
+    enum class Status { OFFICIAL, UNOFFICIAL, DEVELOPMENT_BUILD, GOOGLE_PLAY }
 
     fun status(context: Context): Status {
+        // Google Play signs the apps it delivers with its own key and checks them itself.
+        if (BuildConfig.PLAY) return Status.GOOGLE_PLAY
         val expected = BuildConfig.SIGNING_CERT_SHA256
         if (expected.isBlank()) return Status.DEVELOPMENT_BUILD
         return if (certificateSha256(context).equals(expected, ignoreCase = true)) Status.OFFICIAL else Status.UNOFFICIAL

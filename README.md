@@ -125,12 +125,13 @@ The big button in the middle of the app brings SMS in (**Scan SMS now** / **Add 
 - Data is stored **encrypted** and is **not** copied to Google backup.
 - No ads, no accounts, no sign-up.
 - SMS that aren't bank or wallet transactions are skipped and never stored.
-
-## Donations
-
-The app is completely free. If you'd like, you can send a donation (minimum ৳10) by bKash Send Money; details are in the app under **More → Donate**. Donations are used by the developer for charity work, such as casual donations to people in need. The app never takes money itself; donating is entirely your choice.
+- Full policy: [Privacy policy](docs/PRIVACY.md).
 
 **The developer will never call you or ask for your PIN, OTP or password.**
+
+## Google Play edition
+
+A Play Store version (**AutoPocket Diary**, with the same automatic SMS reading as the Auto edition) is being prepared. On Play it installs normally, with no Play Protect steps. Until it's live, use the APKs above. Publishing notes are in [docs/PLAY_STORE_GUIDE.md](docs/PLAY_STORE_GUIDE.md) and store graphics in [docs/play-store](docs/play-store).
 
 ## Limits
 
@@ -171,4 +172,4 @@ The app includes [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jaka
 
 **হাতে এন্ট্রি:** অ্যাপের মাঝের বড় বোতামটি SMS আনার জন্য (**এখনই SMS খুঁজুন** / **SMS থেকে যোগ করুন**)। যে নগদ খরচের SMS আসে না, শুধু সেগুলোর জন্য একই বোতাম চেপে নিচের **নগদ খরচ হাতে যোগ করুন** বাছুন।
 
-**অনুদান:** অ্যাপটি সম্পূর্ণ ফ্রি। চাইলে বিকাশে অনুদান পাঠাতে পারেন (ন্যূনতম ৳১০), যা ডেভেলপার দাতব্য কাজে ব্যবহার করেন। অ্যাপ নিজে কখনো টাকা কাটে না। **ডেভেলপার কখনো ফোন করে আপনার PIN বা OTP চাইবেন না।**
+**ডেভেলপার কখনো ফোন করে আপনার PIN বা OTP চাইবেন না।** বিস্তারিত: [গোপনীয়তা নীতি](docs/PRIVACY.md)।

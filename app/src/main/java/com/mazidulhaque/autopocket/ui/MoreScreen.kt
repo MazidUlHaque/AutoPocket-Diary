@@ -49,7 +49,6 @@ fun MoreScreen(
     onBackup: () -> Unit,
     onSettings: () -> Unit,
     onAbout: () -> Unit,
-    onDonate: () -> Unit,
 ) {
     LazyColumn(
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 24.dp),
@@ -74,7 +73,6 @@ fun MoreScreen(
                 Column {
                     MoreRow(Glyphs.Gear, stringResource(R.string.settings), stringResource(R.string.settings_sub), onSettings)
                     MoreRow(Glyphs.Info, stringResource(R.string.about_and_privacy), stringResource(R.string.about_sub), onAbout)
-                    MoreRow(Glyphs.Heart, stringResource(R.string.donate), stringResource(R.string.donate_sub), onDonate)
                 }
             }
         }

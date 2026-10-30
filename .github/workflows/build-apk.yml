@@ -49,7 +49,7 @@ jobs:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
         run: |
           set -o pipefail
-          ./gradlew testAutoReleaseUnitTest assembleRelease --console=plain 2>&1 | tee build.log
+          ./gradlew testAutoReleaseUnitTest assembleRelease bundlePlayRelease --console=plain 2>&1 | tee build.log
 
       - name: Show build errors
         if: failure()
@@ -85,10 +85,13 @@ jobs:
               want=$(echo "$SIGNING_CERT_SHA256" | tr -d ':' | tr 'A-F' 'a-f')
               grep -qi "SHA-256 digest: $want" certs.txt || { echo "::error::$edition APK is not signed with the official key"; exit 1; }
             fi
-            cp "$apk" "$out"
+            [ -n "$out" ] && cp "$apk" "$out"
+            return 0
           }
           check standard AutoPocketDiary.apk
           check auto AutoPocketDiary-Auto.apk
+          check play ""   # the Play edition is uploaded to Google Play as an app bundle, not published here
+          [ "$NO_SIGNING" = "1" ] || cp app/build/outputs/bundle/playRelease/app-play-release.aab AutoPocketDiary-Play.aab
           sha256sum AutoPocketDiary.apk AutoPocketDiary-Auto.apk > SHA256SUMS.txt
 
       - uses: actions/upload-artifact@v4
@@ -99,6 +102,13 @@ jobs:
             AutoPocketDiary.apk
             AutoPocketDiary-Auto.apk
             SHA256SUMS.txt
+
+      # The Google Play upload. Download it from this run's page (Actions → latest run → Artifacts).
+      - uses: actions/upload-artifact@v4
+        if: env.NO_SIGNING != '1'
+        with:
+          name: AutoPocketDiary-Play-bundle
+          path: AutoPocketDiary-Play.aab
 
       # Only the main branch updates the official download. Other branches just build and test.
       - name: Publish to Releases page

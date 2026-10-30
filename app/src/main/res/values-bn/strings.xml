@@ -45,7 +45,6 @@
     <string name="auto_import_text">এই সংস্করণ নিজে থেকে মেসেজ পড়তে পারে না। একটি ফ্রি SMS ব্যাকআপ অ্যাপ প্রতিদিন আপনার মেসেজ একটি ফাইলে রাখতে পারে, আর অ্যাপ খুললেই এটি সবচেয়ে নতুন ফাইলটি পড়ে নেয়।</string>
     <string name="auto_import_title">স্বয়ংক্রিয়: প্রতিদিনের SMS ব্যাকআপ</string>
     <string name="autopocket_diary">AutoPocket Diary</string>
-    <string name="autopocket_diary_is_completely_free_to">AutoPocket Diary ব্যবহার সম্পূর্ণ ফ্রি।</string>
     <string name="available_limit_n">ব্যবহারযোগ্য সীমা %1$s (শেষ SMS অনুযায়ী)</string>
     <string name="back">পেছনে</string>
     <string name="backup_and_export">ব্যাকআপ ও এক্সপোর্ট</string>
@@ -58,7 +57,6 @@
     <string name="bank">ব্যাংক</string>
     <string name="bill_paid">বিল পরিশোধ</string>
     <string name="bill_paid_n">বিল পরিশোধ %1$s</string>
-    <string name="bkash_personal">বিকাশ (পার্সোনাল)</string>
     <string name="budget_alert_line">%1$s: %3$s-এর মধ্যে %2$s (%4$d%%)</string>
     <string name="budget_alerts_this_month">এই মাসের বাজেট সতর্কতা</string>
     <string name="budget_used">বাজেট %1$s: %2$d%% খরচ হয়েছে</string>
@@ -109,7 +107,6 @@
     <string name="choose_where_to_save_spreadsheet">স্প্রেডশিট কোথায় রাখবেন বাছুন</string>
     <string name="confirm_its_you_with_your_phones">ফোনের স্ক্রিন লক বা ফিঙ্গারপ্রিন্ট দিয়ে নিশ্চিত করুন যে এটি আপনি, তারপর নতুন PIN বাছুন। গোপন এন্ট্রিগুলো থেকে যাবে।</string>
     <string name="continue_button">চালিয়ে যান</string>
-    <string name="copy_number">নম্বর কপি করুন</string>
     <string name="create_hidden_zone">গোপন অংশ তৈরি করুন</string>
     <string name="created_by">তৈরি করেছেন %1$s</string>
     <string name="creates_a_file_you_can_open">Excel বা Google Sheets-এ খোলা যায় এমন ফাইল তৈরি করে। গোপন অংশের এন্ট্রি কখনো এতে থাকে না।</string>
@@ -120,11 +117,10 @@
     <string name="delete_entry">এন্ট্রি মুছুন</string>
     <string name="delete_this_entry">এই এন্ট্রি মুছবেন?</string>
     <string name="development_build">ডেভেলপমেন্ট বিল্ড।</string>
-    <string name="donate">অনুদান</string>
-    <string name="donate_steps">১. ওপরের নম্বরটি কপি করুন।\n২. নিজের বিকাশ অ্যাপ খুলে Send Money বাছুন।\n৩. নম্বরটি পেস্ট করে টাকার পরিমাণ লিখুন (৳%1$d বা বেশি)।\n৪. তথ্য মিলিয়ে নিয়ে বিকাশ অ্যাপের ভেতরেই নিজের PIN দিয়ে নিশ্চিত করুন।</string>
-    <string name="donate_sub">ইচ্ছাধীন, দাতব্য কাজে</string>
-    <string name="donating_is_completely_optional_and_unlocks">অনুদান সম্পূর্ণ ইচ্ছাধীন, এতে কোনো বাড়তি সুবিধা খোলে না। চাইলে পুরোপুরি এড়িয়ে যেতে পারেন, আর পাঠানোর আগে যেকোনো সময় থেমে যেতে পারেন।</string>
-    <string name="donation_minimum">সর্বনিম্ন ৳%1$d।</string>
+    <string name="disclosure_continue">চালিয়ে যান</string>
+    <string name="disclosure_not_now">এখন নয়</string>
+    <string name="disclosure_text">আপনার টাকা আসা-যাওয়ার হিসাব নিজে থেকে রাখতে AutoPocket Diary এই ফোনে ব্যাংক ও মোবাইল ওয়ালেটের (বিকাশ, নগদ, রকেট ইত্যাদি) পাঠানো SMS পড়ে, যার মধ্যে টাকার অঙ্ক, অ্যাকাউন্ট ও তারিখ থাকে।\n\nএটি শুধু আপনার ফোনেই হয়। অ্যাপটির ইন্টারনেট সংযোগ নেই: আপনার মেসেজ কখনো আপলোড, শেয়ার বা ডেভেলপার বা অন্য কারও কাছে পাঠানো হয় না। ব্যাংক বা ওয়ালেটের লেনদেন নয় এমন SMS বাদ দেওয়া হয় এবং রাখা হয় না।\n\nফোনের সেটিংস থেকে যেকোনো সময় এটি বন্ধ করতে পারবেন।</string>
+    <string name="disclosure_title">AutoPocket Diary আপনার লেনদেনের SMS পড়ে</string>
     <string name="dont_count_in_totals">মোট হিসাবে ধরবেন না</string>
     <string name="edit_transaction">লেনদেন বদলান</string>
     <string name="enter_the_password_you_chose_when">ব্যাকআপ বানানোর সময় যে পাসওয়ার্ড দিয়েছিলেন, সেটি লিখুন।</string>
@@ -157,15 +153,14 @@
     <string name="hiding_an_entry_here_doesnt_hide">এখানে এন্ট্রি লুকালেও মেসেজ অ্যাপের SMS লুকায় না।</string>
     <string name="homescreen_widget">হোম স্ক্রিন উইজেট</string>
     <string name="how_much_taka">কত টাকা কাটা হয়েছে?</string>
-    <string name="how_to_donate">কীভাবে অনুদান দেবেন</string>
     <string name="if_you_forget_the_pin_you">PIN ভুলে গেলে ফোনের স্ক্রিন লক দিয়ে নিশ্চিত করে নতুন PIN বেছে নিতে পারবেন।</string>
-    <string name="if_youd_like_you_can_send">চাইলে বিকাশে অনুদান পাঠাতে পারেন। ডেভেলপার অনুদানের টাকা দাতব্য কাজে ব্যবহার করেন, যেমন অসহায় মানুষকে সাধারণ সাহায্য।</string>
     <string name="import_file_text">“SMS Backup &amp; Restore”-এর মতো ফ্রি অ্যাপ দিয়ে মেসেজগুলো এই ফোনে একটি ফাইল হিসেবে রাখুন, তারপর এখানে সেই ফাইল বাছুন। শুধু ব্যাংক ও ওয়ালেটের লেনদেন নেওয়া হয়; অন্য মেসেজ বাদ যায় এবং রাখা হয় না।</string>
     <string name="import_file_title">একসাথে অনেক SMS আনুন</string>
     <string name="imported_n">%1$dটি নতুন লেনদেন যোগ হয়েছে</string>
     <string name="include_hidden_zone_entries_protected_by">গোপন অংশের এন্ট্রিও রাখুন (ব্যাকআপ পাসওয়ার্ড দিয়ে সুরক্ষিত)</string>
     <string name="incoming">এসেছে</string>
     <string name="insights">বিশ্লেষণ</string>
+    <string name="installed_from_play">✓ Google Play থেকে ইনস্টল করা।</string>
     <string name="it_is_a_personal_record_not">এটি ব্যক্তিগত হিসাবের খাতা, আর্থিক পরামর্শ নয়।</string>
     <string name="it_locks_by_itself_whenever_you">অ্যাপ ছেড়ে গেলেই এটি নিজে থেকে লক হয়ে যায়, আর ভেতরে স্ক্রিনশট নেওয়া যায় না।</string>
     <string name="it_only_sees_transactions_that_sent">শুধু সেই লেনদেনগুলোই দেখে, যেগুলোর SMS এখনো আপনার ফোনে আছে।</string>
@@ -226,7 +221,6 @@
     <string name="nothing_hidden_in_this_period_to">এই সময়ে কিছু লুকানো নেই। কোনো এন্ট্রি লুকাতে মূল স্ক্রিনে সেটিতে চাপ দিয়ে \"গোপন অংশে সরান\" বাছুন।</string>
     <string name="nothing_in_this_period_yet_tap">এই সময়ে এখনো কিছু নেই। হাতে খরচ বা আয় যোগ করতে + চাপুন।</string>
     <string name="nothing_spent">এই সময়ে কোনো খরচ নেই।</string>
-    <string name="number_copied">নম্বর কপি হয়েছে</string>
     <string name="official_download">অফিসিয়াল ডাউনলোড</string>
     <string name="official_version_signed_by_the_developer">✓ অফিসিয়াল সংস্করণ, ডেভেলপারের সই করা।</string>
     <string name="only_install_autopocket_diary_from_the">AutoPocket Diary শুধু ডেভেলপারের অফিসিয়াল পেজ থেকেই ইনস্টল করুন:</string>
@@ -327,7 +321,6 @@
     <string name="spent_n">খরচ %1$s</string>
     <string name="spent_this_month_n">এই মাসে খরচ: ৳%1$s</string>
     <string name="spreadsheet_saved">স্প্রেডশিট রাখা হয়েছে (%1$dটি এন্ট্রি)।</string>
-    <string name="stay_safe">সাবধান থাকুন</string>
     <string name="suggest_credit">প্রস্তাব: ক্রেডিট কার্ড, কারণ SMS-এ “Cr. Card” বা ব্যবহারযোগ্য সীমা লেখা আছে।</string>
     <string name="suggest_debit">প্রস্তাব: ডেবিট কার্ড, কারণ SMS-এ অ্যাকাউন্টের ব্যালেন্স দেখানো আছে।</string>
     <string name="tab_accounts">অ্যাকাউন্ট</string>
@@ -335,8 +328,6 @@
     <string name="takes_money_from">কোন অ্যাকাউন্ট থেকে টাকা নেয়?</string>
     <string name="thats_all_no_internet_contacts_location">এইটুকুই। ইন্টারনেট, কন্টাক্ট, লোকেশন, ক্যামেরা বা স্টোরেজের কোনো অনুমতি নেই।</string>
     <string name="the_app_has_no_internet_permission">অ্যাপটির ইন্টারনেট ব্যবহারের অনুমতি নেই, তাই এটি আপনার তথ্য ডেভেলপার বা অন্য কারও কাছে পাঠাতে পারে না।</string>
-    <string name="the_app_never_takes_money_automatically">অ্যাপ কখনো নিজে থেকে টাকা নেয় না। এতে কোনো পেমেন্ট ব্যবস্থাই নেই। টাকা পাঠাবেন কি না, তা আপনিই ঠিক করবেন, নিজের বিকাশ অ্যাপ থেকে।</string>
-    <string name="the_developer_will_never_call_or">ডেভেলপার কখনো ফোন বা মেসেজ করে টাকা, আপনার PIN, OTP বা পাসওয়ার্ড চাইবেন না। শুধু নিজের বিকাশ অ্যাপ থেকে টাকা পাঠান, আর কাউকে কখনো PIN বলবেন না।</string>
     <string name="the_pins_dont_match">দুটি PIN মেলেনি</string>
     <string name="this_copy_of_autopocket_diary_was">AutoPocket Diary-র এই কপিটি ডেভেলপারের সই করা নয়। অন্য কেউ এটি বদলে থাকতে পারে। তথ্য নিরাপদ রাখতে এটি আনইনস্টল করে অফিসিয়াল অ্যাপ ডাউনলোড করুন।</string>
     <string name="this_file_is_not_locked_anyone">এই ফাইল তালাবদ্ধ নয়। যার কাছে ফাইলটি থাকবে, সে-ই আপনার লেনদেন পড়তে পারবে, তাই এটি গোপন রাখুন।</string>

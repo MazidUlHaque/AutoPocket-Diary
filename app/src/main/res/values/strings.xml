@@ -45,7 +45,6 @@
     <string name="auto_import_text">This edition can’t read your inbox by itself. A free SMS backup app can save your messages to a file every day, and this app reads the newest file each time you open it.</string>
     <string name="auto_import_title">Automatic: daily SMS backup</string>
     <string name="autopocket_diary">AutoPocket Diary</string>
-    <string name="autopocket_diary_is_completely_free_to">AutoPocket Diary is completely free to use.</string>
     <string name="available_limit_n">Available limit %1$s (from the last SMS)</string>
     <string name="back">Back</string>
     <string name="backup_and_export">Backup &amp; export</string>
@@ -58,7 +57,6 @@
     <string name="bank">Bank</string>
     <string name="bill_paid">Bill paid</string>
     <string name="bill_paid_n">Bill paid %1$s</string>
-    <string name="bkash_personal">bKash (Personal)</string>
     <string name="budget_alert_line">%1$s: %2$s of %3$s (%4$d%%)</string>
     <string name="budget_alerts_this_month">Budget alerts this month</string>
     <string name="budget_used">budget %1$s: %2$d%% used</string>
@@ -109,7 +107,6 @@
     <string name="choose_where_to_save_spreadsheet">Choose where to save spreadsheet</string>
     <string name="confirm_its_you_with_your_phones">Confirm it\'s you with your phone\'s screen lock or fingerprint, then choose a new PIN. Your hidden entries are kept.</string>
     <string name="continue_button">Continue</string>
-    <string name="copy_number">Copy number</string>
     <string name="create_hidden_zone">Create hidden zone</string>
     <string name="created_by">Created by %1$s</string>
     <string name="creates_a_file_you_can_open">Creates a file you can open in Excel or Google Sheets. Hidden zone entries are never included.</string>
@@ -120,14 +117,10 @@
     <string name="delete_entry">Delete entry</string>
     <string name="delete_this_entry">Delete this entry?</string>
     <string name="development_build">Development build.</string>
-    <string name="donate">Donate</string>
-    <string name="donate_steps">1. Copy the number above.
-2. Open your own bKash app and choose Send Money.
-3. Paste the number and enter an amount (৳%1$d or more).
-4. Check the details, then confirm with your PIN inside the bKash app.</string>
-    <string name="donate_sub">Optional, for charity</string>
-    <string name="donating_is_completely_optional_and_unlocks">Donating is completely optional and unlocks nothing. You can ignore it entirely, and you can stop at any point before you send.</string>
-    <string name="donation_minimum">Minimum ৳%1$d.</string>
+    <string name="disclosure_continue">Continue</string>
+    <string name="disclosure_not_now">Not now</string>
+    <string name="disclosure_text">To record your incoming and outgoing money automatically, AutoPocket Diary reads the SMS that banks and mobile wallets (bKash, Nagad, Rocket and others) send to this phone, including amounts, accounts and dates.\n\nThis happens only on your phone. The app has no internet access: your messages are never uploaded, shared or sent to the developer or anyone else. SMS that aren’t bank or wallet transactions are ignored and not stored.\n\nYou can turn this off at any time in your phone’s settings.</string>
+    <string name="disclosure_title">AutoPocket Diary reads your transaction SMS</string>
     <string name="dont_count_in_totals">Don\'t count in totals</string>
     <string name="edit_transaction">Edit transaction</string>
     <string name="enter_the_password_you_chose_when">Enter the password you chose when you made this backup.</string>
@@ -160,15 +153,14 @@
     <string name="hiding_an_entry_here_doesnt_hide">Hiding an entry here doesn\'t hide the SMS in your Messages app.</string>
     <string name="homescreen_widget">Home-screen widget</string>
     <string name="how_much_taka">How much taka was charged?</string>
-    <string name="how_to_donate">How to donate</string>
     <string name="if_you_forget_the_pin_you">If you forget the PIN, you can confirm with your phone\'s screen lock and choose a new one.</string>
-    <string name="if_youd_like_you_can_send">If you\'d like, you can send a donation by bKash. Donations are used by the developer for charity work, such as casual donations to people in need.</string>
     <string name="import_file_text">Use a free app such as “SMS Backup &amp; Restore” to save your messages as a file on this phone, then choose that file here. Only bank and wallet transactions are taken; other messages are ignored and not stored.</string>
     <string name="import_file_title">Import many SMS at once</string>
     <string name="imported_n">Imported %1$d new transactions</string>
     <string name="include_hidden_zone_entries_protected_by">Include hidden zone entries (protected by the backup password)</string>
     <string name="incoming">Incoming</string>
     <string name="insights">Insights</string>
+    <string name="installed_from_play">✓ Installed from Google Play.</string>
     <string name="it_is_a_personal_record_not">It is a personal record, not financial advice.</string>
     <string name="it_locks_by_itself_whenever_you">It locks by itself whenever you leave the app, and screenshots are blocked inside it.</string>
     <string name="it_only_sees_transactions_that_sent">It only sees transactions that sent you an SMS which is still on your phone.</string>
@@ -229,7 +221,6 @@
     <string name="nothing_hidden_in_this_period_to">Nothing hidden in this period. To hide an entry, tap it on the main screen and choose \"Move to hidden zone\".</string>
     <string name="nothing_in_this_period_yet_tap">Nothing in this period yet. Tap + to add an expense or income by hand.</string>
     <string name="nothing_spent">Nothing spent in this period.</string>
-    <string name="number_copied">Number copied</string>
     <string name="official_download">Official download</string>
     <string name="official_version_signed_by_the_developer">✓ Official version, signed by the developer.</string>
     <string name="only_install_autopocket_diary_from_the">Only install AutoPocket Diary from the developer\'s official page:</string>
@@ -330,7 +321,6 @@
     <string name="spent_n">Spent %1$s</string>
     <string name="spent_this_month_n">Spent this month: ৳%1$s</string>
     <string name="spreadsheet_saved">Spreadsheet saved (%1$d entries).</string>
-    <string name="stay_safe">Stay safe</string>
     <string name="suggest_credit">Suggested: credit card, because the SMS says “Cr. Card” or shows an available limit.</string>
     <string name="suggest_debit">Suggested: debit card, because the SMS shows an account balance.</string>
     <string name="tab_accounts">Accounts</string>
@@ -338,8 +328,6 @@
     <string name="takes_money_from">Takes money from which account?</string>
     <string name="thats_all_no_internet_contacts_location">That\'s all. No internet, contacts, location, camera or storage access.</string>
     <string name="the_app_has_no_internet_permission">The app has no internet permission, so it cannot send your data to the developer or to anyone else.</string>
-    <string name="the_app_never_takes_money_automatically">The app never takes money automatically. It has no payment feature at all. You choose whether to send money yourself, from your own bKash app.</string>
-    <string name="the_developer_will_never_call_or">The developer will never call or message you asking for money, your PIN, OTP or password. Only send money from your own bKash app, and never share your PIN with anyone.</string>
     <string name="the_pins_dont_match">The PINs don\'t match</string>
     <string name="this_copy_of_autopocket_diary_was">This copy of AutoPocket Diary was not signed by its developer. It may have been changed by someone else. To keep your data safe, uninstall it and download the official app.</string>
     <string name="this_file_is_not_locked_anyone">This file is NOT locked. Anyone who has it can read your transactions, so keep it private.</string>
@@ -360,12 +348,7 @@
     <string name="use_category_for">Use this category for everything from “%1$s”</string>
     <string name="use_fingerprint_or_phone_lock">Use fingerprint or phone lock</string>
     <string name="version_n">Version %1$s</string>
-    <string name="welcome_free">AutoPocket Diary is completely free.
-
-Created by %1$s.
-%2$s
-
-Next, the app will ask to read your SMS. This is needed to find your transactions. You can say no and still add entries by hand.</string>
+    <string name="welcome_free">AutoPocket Diary is completely free.\n\nCreated by %1$s.\n%2$s\n\nNext, the app will ask to read your SMS. This is needed to find your transactions. You can say no and still add entries by hand.</string>
     <string name="welcome_free_standard">AutoPocket Diary is completely free.\n\nCreated by %1$s.\n%2$s\n\nThis edition never asks to read your messages. To add transactions, share a bank or bKash SMS to the app (touch and hold the SMS → Share), paste SMS, or import an SMS backup file.</string>
     <string name="welcome_to_autopocket_diary">Welcome to AutoPocket Diary</string>
     <string name="what_is_it">Found in your SMS. What is it? This helps the app show totals per account and card.</string>

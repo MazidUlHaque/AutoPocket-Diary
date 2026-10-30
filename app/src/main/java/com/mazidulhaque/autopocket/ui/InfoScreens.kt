@@ -4,7 +4,6 @@ package com.mazidulhaque.autopocket.ui
 
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,9 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.res.stringResource
@@ -168,6 +165,7 @@ fun AboutScreen(onBack: () -> Unit, onShowWelcome: () -> Unit) {
         Spacer(Modifier.height(8.dp))
         when (status) {
             AppIntegrity.Status.OFFICIAL -> Text(stringResource(R.string.official_version_signed_by_the_developer), color = AppTheme.colors.ok)
+            AppIntegrity.Status.GOOGLE_PLAY -> Text(stringResource(R.string.installed_from_play), color = AppTheme.colors.ok)
             AppIntegrity.Status.DEVELOPMENT_BUILD -> Text(stringResource(R.string.development_build), color = MaterialTheme.colorScheme.onSurfaceVariant)
             AppIntegrity.Status.UNOFFICIAL -> IntegrityWarning()
         }
@@ -208,56 +206,6 @@ fun AboutScreen(onBack: () -> Unit, onShowWelcome: () -> Unit) {
         )
         Spacer(Modifier.height(16.dp))
         OutlinedButton(onClick = onShowWelcome) { Text(stringResource(R.string.show_welcome_screens_again)) }
-        Spacer(Modifier.height(24.dp))
-    }
-}
-
-@Composable
-fun DonateScreen(onBack: () -> Unit) {
-    val context = LocalContext.current
-    val clipboard = LocalClipboardManager.current
-    val copied = stringResource(R.string.number_copied)
-    SubScreen(stringResource(R.string.donate), onBack) {
-        Text(stringResource(R.string.autopocket_diary_is_completely_free_to), style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            stringResource(R.string.if_youd_like_you_can_send),
-        )
-        Spacer(Modifier.height(12.dp))
-        Bullets(
-            listOf(
-                stringResource(R.string.donation_minimum, AppInfo.DONATION_MINIMUM),
-                stringResource(R.string.the_app_never_takes_money_automatically),
-                stringResource(R.string.donating_is_completely_optional_and_unlocks),
-            ),
-        )
-        Spacer(Modifier.height(16.dp))
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp)) {
-                Text(stringResource(R.string.bkash_personal), color = MaterialTheme.colorScheme.onSurfaceVariant)
-                SelectionContainer {
-                    Text(AppInfo.DONATION_BKASH, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                }
-                Spacer(Modifier.height(8.dp))
-                Button(onClick = {
-                    clipboard.setText(AnnotatedString(AppInfo.DONATION_BKASH))
-                    Toast.makeText(context, copied, Toast.LENGTH_SHORT).show()
-                }) { Text(stringResource(R.string.copy_number)) }
-            }
-        }
-        SectionTitle(stringResource(R.string.how_to_donate))
-        Text(
-            stringResource(R.string.donate_steps, AppInfo.DONATION_MINIMUM),
-        )
-        Spacer(Modifier.height(16.dp))
-        Card(colors = CardDefaults.cardColors(containerColor = AppTheme.colors.warnBackground)) {
-            Column(Modifier.padding(16.dp)) {
-                Text(stringResource(R.string.stay_safe), style = MaterialTheme.typography.titleMedium, color = AppTheme.colors.warnText)
-                Text(
-                    stringResource(R.string.the_developer_will_never_call_or),
-                )
-            }
-        }
         Spacer(Modifier.height(24.dp))
     }
 }

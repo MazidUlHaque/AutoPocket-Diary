@@ -27,6 +27,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,7 +61,6 @@ import com.mazidulhaque.autopocket.ui.AppTheme
 import com.mazidulhaque.autopocket.ui.AutoPocketTheme
 import com.mazidulhaque.autopocket.ui.BackupScreen
 import com.mazidulhaque.autopocket.ui.BudgetsScreen
-import com.mazidulhaque.autopocket.ui.DonateScreen
 import com.mazidulhaque.autopocket.ui.Glyphs
 import com.mazidulhaque.autopocket.ui.HiddenZoneScreen
 import com.mazidulhaque.autopocket.ui.HomeScreen
@@ -78,7 +78,7 @@ import com.mazidulhaque.autopocket.ui.TransactionsScreen
 private enum class Tab { HOME, ACCOUNTS, INSIGHTS, MORE }
 
 /** Full screens opened on top of the tabs. */
-private enum class Page { NONE, WELCOME, ABOUT, DONATE, HIDDEN, BACKUP, BUDGETS, SETTINGS, ADD_SMS, REVIEW, TRANSACTIONS, SMS_HELP }
+private enum class Page { NONE, WELCOME, ABOUT, HIDDEN, BACKUP, BUDGETS, SETTINGS, ADD_SMS, REVIEW, TRANSACTIONS, SMS_HELP }
 
 class MainActivity : AppCompatActivity() {
     private val vm: MainViewModel by viewModels()
@@ -146,7 +146,9 @@ class MainActivity : AppCompatActivity() {
                         // No dialog appeared (Android blocked it as a "restricted setting", or "don't ask again"): show the guide.
                         if (!granted && !shouldShowRequestPermissionRationale(Manifest.permission.READ_SMS)) page = Page.SMS_HELP
                     }
-                    fun requestSms() = launcher.launch(Manifest.permission.READ_SMS)
+                    // Google Play requires a clear explanation before asking for SMS access ("prominent disclosure").
+                    var disclosure by remember { mutableStateOf(false) }
+                    fun requestSms() { disclosure = true }
 
                     LaunchedEffect(sharedText) { if (sharedText != null) page = Page.ADD_SMS }
                     // Bring in SMS each time the app opens (and right after permission is given).
@@ -181,7 +183,6 @@ class MainActivity : AppCompatActivity() {
                         Page.BACKUP -> BackupScreen(vm, onBack = back)
                         Page.HIDDEN -> HiddenZoneScreen(vm, onBack = back)
                         Page.ABOUT -> AboutScreen(onBack = back, onShowWelcome = { page = Page.WELCOME })
-                        Page.DONATE -> DonateScreen(onBack = back)
                         Page.REVIEW -> ReviewScreen(vm, onBack = back)
                         Page.SMS_HELP -> SmsPermissionHelpScreen(hasPermission, onRequest = ::requestSms, onBack = { smsGranted = smsAllowed(); back() })
                         Page.TRANSACTIONS -> TransactionsScreen(
@@ -215,13 +216,27 @@ class MainActivity : AppCompatActivity() {
                                         onAddSms = { page = Page.ADD_SMS }, onSmsHelp = { page = Page.SMS_HELP },
                                         onHidden = { page = Page.HIDDEN }, onBudgets = { page = Page.BUDGETS },
                                         onBackup = { page = Page.BACKUP }, onSettings = { page = Page.SETTINGS },
-                                        onAbout = { page = Page.ABOUT }, onDonate = { page = Page.DONATE },
+                                        onAbout = { page = Page.ABOUT }
                                     )
                                 }
                             }
                         }
                     }
 
+                    if (disclosure) {
+                        AlertDialog(
+                            onDismissRequest = { disclosure = false },
+                            icon = { Icon(Glyphs.Sms, null) },
+                            title = { Text(stringResource(R.string.disclosure_title)) },
+                            text = { Text(stringResource(R.string.disclosure_text)) },
+                            confirmButton = {
+                                TextButton(onClick = { disclosure = false; launcher.launch(Manifest.permission.READ_SMS) }) {
+                                    Text(stringResource(R.string.disclosure_continue))
+                                }
+                            },
+                            dismissButton = { TextButton(onClick = { disclosure = false }) { Text(stringResource(R.string.disclosure_not_now)) } },
+                        )
+                    }
                     if (addSheet) {
                         AddSheet(
                             hasPermission,

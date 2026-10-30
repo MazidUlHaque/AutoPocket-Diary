@@ -32,6 +32,7 @@ android {
     //  - standard: no SMS permission, installs normally; SMS are shared, pasted or imported from a file.
     //  - auto: reads the SMS inbox itself (READ_SMS). Play Protect blocks this from browser downloads
     //    in some countries, so it's for people who choose to allow it.
+    //  - play: the same as auto, published on Google Play (own package ID, because Play re-signs apps).
     flavorDimensions += "edition"
     productFlavors {
         create("standard") {
@@ -39,11 +40,20 @@ android {
             applicationIdSuffix = ".standard"
             resValue("string", "app_name", "AutoPocket Diary")
             buildConfigField("boolean", "AUTO_SMS", "false")
+            buildConfigField("boolean", "PLAY", "false")
         }
         create("auto") {
             dimension = "edition"
             resValue("string", "app_name", "AutoPocket Diary Auto")
             buildConfigField("boolean", "AUTO_SMS", "true")
+            buildConfigField("boolean", "PLAY", "false")
+        }
+        create("play") {
+            dimension = "edition"
+            applicationId = "com.mazidulhaque.autopocketdiary"
+            resValue("string", "app_name", "AutoPocket Diary")
+            buildConfigField("boolean", "AUTO_SMS", "true")
+            buildConfigField("boolean", "PLAY", "true")
         }
     }
 
