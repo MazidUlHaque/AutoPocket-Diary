@@ -113,7 +113,7 @@ From then on, every time you open AutoPocket Diary it reads the newest backup an
 
 ## Adding entries by hand (if you ever need to)
 
-For cash spending that never sends an SMS, tap **+** and add it in a few seconds. You can also edit any automatic entry: give it a title ("Shoes"), change its category, or leave it out of the totals.
+The big button in the middle of the app brings SMS in (**Scan SMS now** / **Add from SMS**). For cash spending that never sends an SMS, tap it and choose **Add a cash entry by hand** at the bottom. You can also edit any automatic entry: give it a title ("Shoes"), change its category, or leave it out of the totals.
 
 <p>
 <img src="docs/screenshots/manual-entry.png" width="200" alt="Adding a cash entry by hand">
@@ -169,6 +169,6 @@ The app includes [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jaka
 
 **ইনস্টল:** ফোনে **[ডাউনলোড পেজ](https://github.com/MazidUlHaque/AutoPocket-Diary/releases/latest)** খুলে APK ডাউনলোড করুন, ফাইলটি খুলুন। "unknown apps" অনুমতি চাইলে **Settings → Allow from this source** চালু করুন।
 
-**হাতে এন্ট্রি:** যে নগদ খরচের SMS আসে না, শুধু সেগুলো **+** চেপে কয়েক সেকেন্ডে যোগ করুন।
+**হাতে এন্ট্রি:** অ্যাপের মাঝের বড় বোতামটি SMS আনার জন্য (**এখনই SMS খুঁজুন** / **SMS থেকে যোগ করুন**)। যে নগদ খরচের SMS আসে না, শুধু সেগুলোর জন্য একই বোতাম চেপে নিচের **নগদ খরচ হাতে যোগ করুন** বাছুন।
 
 **অনুদান:** অ্যাপটি সম্পূর্ণ ফ্রি। চাইলে বিকাশে অনুদান পাঠাতে পারেন (ন্যূনতম ৳১০), যা ডেভেলপার দাতব্য কাজে ব্যবহার করেন। অ্যাপ নিজে কখনো টাকা কাটে না। **ডেভেলপার কখনো ফোন করে আপনার PIN বা OTP চাইবেন না।**

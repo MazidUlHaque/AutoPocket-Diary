@@ -150,7 +150,6 @@ internal object Glyphs {
     val Card = strokeIcon("card", "M3 6h18v13H3zM3 10h18")
     val Chart = strokeIcon("chart", "M5 20V10M12 20V4M19 20v-7")
     val More = strokeIcon("more", "M5 12h.01M12 12h.01M19 12h.01")
-    val Plus = strokeIcon("plus", "M12 5v14M5 12h14")
     val Sms = strokeIcon("sms", "M4 5h16v11H8l-4 4zM8 9h8M8 12h5")
     val Alert = strokeIcon("alert", "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M12 7v6M12 16.5v.5")
     val Chevron = strokeIcon("chevron", "M9 6l6 6-6 6")

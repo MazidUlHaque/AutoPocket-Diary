@@ -23,7 +23,6 @@
     <string name="add_from_sms">Add from SMS</string>
     <string name="add_from_sms_sub">Share, paste or import SMS</string>
     <string name="add_hidden_entry">Add hidden entry</string>
-    <string name="add_manually">Add manually</string>
     <string name="add_n_transactions">Add %1$d transactions</string>
     <string name="add_sms_card_text">This edition never reads your messages by itself. Share SMS to the app, paste them, or import an SMS backup file.</string>
     <string name="add_sms_card_title">Add your bank &amp; bKash SMS</string>
@@ -266,6 +265,10 @@
     <string name="prompt_confirm">Confirm it’s you</string>
     <string name="prompt_open_title">Open hidden zone</string>
     <string name="prompt_reset_title">Reset hidden zone PIN</string>
+    <string name="quick_add_sms_sub">Share, paste or import SMS, or set up automatic import</string>
+    <string name="quick_manual">Add a cash entry by hand</string>
+    <string name="quick_scan_now">Scan SMS now</string>
+    <string name="quick_scan_sub">Check your inbox for new bank and wallet SMS</string>
     <string name="read_now">Read now</string>
     <string name="read_sms_to_find_bank_and">Read SMS: to find bank and wallet transactions. Other messages are skipped and never stored.</string>
     <string name="recent">Recent</string>

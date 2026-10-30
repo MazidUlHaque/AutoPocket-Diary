@@ -23,7 +23,6 @@
     <string name="add_from_sms">SMS থেকে যোগ করুন</string>
     <string name="add_from_sms_sub">SMS শেয়ার, পেস্ট বা ইমপোর্ট করুন</string>
     <string name="add_hidden_entry">গোপন এন্ট্রি যোগ করুন</string>
-    <string name="add_manually">নিজে যোগ করুন</string>
     <string name="add_n_transactions">%1$dটি লেনদেন যোগ করুন</string>
     <string name="add_sms_card_text">এই সংস্করণ নিজে থেকে কখনো আপনার মেসেজ পড়ে না। অ্যাপে SMS শেয়ার করুন, পেস্ট করুন, অথবা SMS ব্যাকআপ ফাইল আনুন।</string>
     <string name="add_sms_card_title">আপনার ব্যাংক ও বিকাশের SMS যোগ করুন</string>
@@ -263,6 +262,10 @@
     <string name="prompt_confirm">নিশ্চিত করুন যে এটি আপনি</string>
     <string name="prompt_open_title">গোপন অংশ খুলুন</string>
     <string name="prompt_reset_title">গোপন অংশের PIN রিসেট</string>
+    <string name="quick_add_sms_sub">SMS শেয়ার, পেস্ট বা ইমপোর্ট করুন, অথবা স্বয়ংক্রিয় ইমপোর্ট চালু করুন</string>
+    <string name="quick_manual">নগদ খরচ হাতে যোগ করুন</string>
+    <string name="quick_scan_now">এখনই SMS খুঁজুন</string>
+    <string name="quick_scan_sub">ইনবক্সে নতুন ব্যাংক ও ওয়ালেটের SMS আছে কি না দেখুন</string>
     <string name="read_now">এখনই পড়ুন</string>
     <string name="read_sms_to_find_bank_and">SMS পড়া: ব্যাংক ও ওয়ালেটের লেনদেন খুঁজতে। অন্য মেসেজ বাদ দেওয়া হয় এবং কখনো রাখা হয় না।</string>
     <string name="recent">সাম্প্রতিক</string>

@@ -27,6 +27,17 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -121,6 +132,7 @@ class MainActivity : AppCompatActivity() {
                     var category by rememberSaveable { mutableStateOf<String?>(null) }
                     var editing by remember { mutableStateOf<Transaction?>(null) }
                     var adding by remember { mutableStateOf(false) }
+                    var addSheet by remember { mutableStateOf(false) }
                     // Only the Auto edition can read the inbox; the standard edition has no SMS permission.
                     val hasPermission = smsGranted
                     val sources by vm.sources.collectAsState()
@@ -179,7 +191,7 @@ class MainActivity : AppCompatActivity() {
                             containerColor = AppTheme.colors.ground,
                             snackbarHost = { SnackbarHost(snackbar) },
                             bottomBar = {
-                                BottomBar(tab, onTab = { tab = it }, onAdd = { adding = true })
+                                BottomBar(tab, onTab = { tab = it }, onAdd = { addSheet = true })
                             },
                         ) { padding ->
                             Box(Modifier.padding(padding).fillMaxSize()) {
@@ -210,6 +222,16 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
+                    if (addSheet) {
+                        AddSheet(
+                            hasPermission,
+                            onDismiss = { addSheet = false },
+                            onScan = { addSheet = false; vm.importSms() },
+                            onTurnOnSms = { addSheet = false; page = Page.SMS_HELP },
+                            onAddFromSms = { addSheet = false; page = Page.ADD_SMS },
+                            onManual = { addSheet = false; adding = true },
+                        )
+                    }
                     if (adding) {
                         TransactionDialog(null, sources, onDismiss = { adding = false }, onSave = { t, r -> vm.save(t, r); adding = false }, onDelete = null)
                     }
@@ -245,9 +267,59 @@ private fun BottomBar(tab: Tab, onTab: (Tab) -> Unit, onAdd: () -> Unit) {
             FloatingActionButton(
                 onClick = onAdd, containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(56.dp),
-            ) { Icon(Glyphs.Plus, stringResource(R.string.add_manually)) }
+            ) { Icon(Glyphs.Sms, stringResource(R.string.add_from_sms)) }
         }
         NavigationBarItem(tab == Tab.INSIGHTS, { onTab(Tab.INSIGHTS) }, { Icon(Glyphs.Chart, null) }, label = { Text(stringResource(R.string.insights)) }, colors = colors)
         NavigationBarItem(tab == Tab.MORE, { onTab(Tab.MORE) }, { Icon(Glyphs.More, null) }, label = { Text(stringResource(R.string.more)) }, colors = colors)
+    }
+}
+
+/**
+ * The centre button: bringing SMS in comes first; typing an entry by hand is the small last option,
+ * only for spending that never sends an SMS.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddSheet(
+    hasPermission: Boolean,
+    onDismiss: () -> Unit,
+    onScan: () -> Unit,
+    onTurnOnSms: () -> Unit,
+    onAddFromSms: () -> Unit,
+    onManual: () -> Unit,
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(Modifier.padding(start = 20.dp, end = 20.dp, bottom = 28.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (BuildConfig.AUTO_SMS) {
+                if (hasPermission) {
+                    SheetAction(Glyphs.Repeat, stringResource(R.string.quick_scan_now), stringResource(R.string.quick_scan_sub), primary = true, onClick = onScan)
+                } else {
+                    SheetAction(Glyphs.Key, stringResource(R.string.turn_on_sms), stringResource(R.string.sms_off_text), primary = true, onClick = onTurnOnSms)
+                }
+            }
+            SheetAction(Glyphs.Sms, stringResource(R.string.add_from_sms), stringResource(R.string.quick_add_sms_sub), primary = !BuildConfig.AUTO_SMS, onClick = onAddFromSms)
+            TextButton(onClick = onManual, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(stringResource(R.string.quick_manual), color = AppTheme.colors.muted)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SheetAction(icon: ImageVector, title: String, sub: String, primary: Boolean, onClick: () -> Unit) {
+    val c = AppTheme.colors
+    Surface(
+        onClick = onClick, shape = RoundedCornerShape(18.dp),
+        color = if (primary) MaterialTheme.colorScheme.primary else c.card,
+        border = if (primary) null else BorderStroke(1.dp, c.border),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Icon(icon, null, Modifier.size(24.dp), tint = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary)
+            Column(Modifier.weight(1f)) {
+                Text(title, fontWeight = FontWeight.Bold, color = if (primary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface)
+                Text(sub, style = MaterialTheme.typography.bodySmall, color = if (primary) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f) else c.muted)
+            }
+        }
     }
 }
