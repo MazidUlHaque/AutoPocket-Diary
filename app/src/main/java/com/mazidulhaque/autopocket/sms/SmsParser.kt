@@ -183,7 +183,7 @@ object SmsParser {
     private val notTheAmountAfter = Regex("^\\s*(?:bdt\\s*)?balance", RegexOption.IGNORE_CASE)
     private val feePattern = Regex("(?:\\bfee|charge)\\s*(?:of|:)?\\s*(?:tk\\.?|bdt|৳)?\\s*$NUM", RegexOption.IGNORE_CASE)
     private val balancePattern = Regex(
-        "(?:c/b|balance|\\bbal\\b|avl\\.?\\s*bal|available\\s+limit)\\s*:?\\s*(?:is\\s*)?(?:tk\\.?|bdt)?\\s*$NUM|$NUM\\s*(?:bdt\\s*)?balance",
+        "(?:c/b|balance|\\bbal\\b|avl\\.?\\s*bal|available\\s+limit)\\s*:?\\s*(?:is\\s*)?(?:tk\\.?|bdt)?\\s*$NUM|$NUM[ \\t]*(?:bdt[ \\t]*)?balance",
         RegexOption.IGNORE_CASE,
     )
 

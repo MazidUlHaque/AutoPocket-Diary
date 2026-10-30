@@ -267,4 +267,11 @@ class SmsParserTest {
         val rem = parse("bKash", "You have received remittance.\nTotal: Tk 1,008.97\nGovt. incentive: Tk 24.61\nTrxID ABC at 07/06/2026 16:11.")
         assertEquals("Remittance", rem.kind); assertEquals(1008.97, rem.amount, 0.001)
     }
+
+    @Test fun accountNumberOnLineAboveBalanceIsNotTheBalance() {
+        val p = parse("IFIC BANK", "01-10-2026 12:57:26 AM\nBDT 315.65 Interest for\nA/C 01234***5678\nBalance: BDT 56,712.67\nIFIC Helpline-16255")
+        assertEquals(56712.67, p.balance!!, 0.001)
+        val q = parse("IFIC BANK", "25-09-2026 6:22:26 AM\nBDT 600.00 Card Maintenance Fee\nBDT 32,867.70 Balance\nA/C 01234***5678")
+        assertEquals(32867.70, q.balance!!, 0.001)
+    }
 }
