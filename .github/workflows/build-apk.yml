@@ -1,0 +1,132 @@
+name: Build APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Never run two publishes at the same time.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Unlock signing key
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          if [ ! -f app/release-keystore.enc ] || [ -z "$SIGNING_PASSWORD" ]; then
+            # Still build, to catch code errors, but the result is unsigned and is not published.
+            echo "::warning::No signing key yet (run 'Create signing key'). Building an unsigned test APK; nothing will be published."
+            echo "NO_SIGNING=1" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          umask 077
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 600000 \
+            -in app/release-keystore.enc -out "$RUNNER_TEMP/release.p12" -pass env:SIGNING_PASSWORD
+          fp=$(keytool -list -v -keystore "$RUNNER_TEMP/release.p12" -storetype PKCS12 -storepass:env SIGNING_PASSWORD \
+            | grep -m1 "SHA256:" | sed 's/.*SHA256: *//')
+          echo "SIGNING_KEYSTORE=$RUNNER_TEMP/release.p12" >> "$GITHUB_ENV"
+          echo "SIGNING_CERT_SHA256=$fp" >> "$GITHUB_ENV"
+          echo "Signing fingerprint: $fp"
+
+      - name: Run tests and build APK
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          set -o pipefail
+          ./gradlew testAutoReleaseUnitTest assembleRelease --console=plain 2>&1 | tee build.log
+
+      - name: Show build errors
+        if: failure()
+        run: |
+          # Shows the errors on the run's summary page, so they can be read without opening logs.
+          [ -f build.log ] || exit 0
+          errors=$(grep -E "^e: |error:|What went wrong|FAILED|Exception|expected:" -A 3 build.log | head -60 || true)
+          [ -z "$errors" ] && errors=$(tail -40 build.log)
+          echo "::error title=Build failed::${errors//$'\n'/%0A}"
+
+      - name: Remove unlocked key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.p12"
+
+      - name: Safety checks on both APKs
+        run: |
+          tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          suffix=release; [ "$NO_SIGNING" = "1" ] && suffix=release-unsigned
+          check() {
+            edition=$1; out=$2
+            apk=app/build/outputs/apk/$edition/release/app-$edition-$suffix.apk
+
+            # 1. Only the allowed permissions (no internet! and no SMS in the standard edition).
+            "$tools/aapt2" dump permissions "$apk" | sed -n "s/^uses-permission: name='\(.*\)'.*/\1/p" | sort > used.txt
+            grep -v '^#' .github/allowed-permissions-$edition.txt | sed '/^$/d' | sort > allowed.txt
+            echo "Permissions in $edition APK:"; cat used.txt
+            extra=$(comm -23 used.txt allowed.txt)
+            if [ -n "$extra" ]; then echo "::error::$edition APK asks for permissions that are not allowed: $extra"; exit 1; fi
+
+            # 2. Signed with the official key.
+            if [ "$NO_SIGNING" != "1" ]; then
+              "$tools/apksigner" verify --print-certs "$apk" | tee certs.txt
+              want=$(echo "$SIGNING_CERT_SHA256" | tr -d ':' | tr 'A-F' 'a-f')
+              grep -qi "SHA-256 digest: $want" certs.txt || { echo "::error::$edition APK is not signed with the official key"; exit 1; }
+            fi
+            cp "$apk" "$out"
+          }
+          check standard AutoPocketDiary.apk
+          check auto AutoPocketDiary-Auto.apk
+          sha256sum AutoPocketDiary.apk AutoPocketDiary-Auto.apk > SHA256SUMS.txt
+
+      - uses: actions/upload-artifact@v4
+        if: env.NO_SIGNING != '1'
+        with:
+          name: AutoPocketDiary-apks
+          path: |
+            AutoPocketDiary.apk
+            AutoPocketDiary-Auto.apk
+            SHA256SUMS.txt
+
+      # Only the main branch updates the official download. Other branches just build and test.
+      - name: Publish to Releases page
+        if: env.NO_SIGNING != '1' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          cat > notes.md <<NOTES
+          **AutoPocket Diary** by Md. Mazid-Ul-Haque. Free, works fully offline, your data never leaves your phone.
+
+          ### Which one should I download?
+          - **\`AutoPocketDiary.apk\`: recommended for everyone.** Installs normally. It never asks to read your messages: you share bank / bKash SMS to it, paste them, or import an SMS backup file.
+          - **\`AutoPocketDiary-Auto.apk\`:** reads your bank and bKash SMS automatically. Because it asks for SMS permission, Google Play Protect blocks it when downloaded from a browser in some countries. Only for people who are comfortable allowing it (see the README).
+
+          Both can be installed side by side; they keep separate data.
+
+          Version 1.0.${GITHUB_RUN_NUMBER}, built from commit ${GITHUB_SHA::7}.
+
+          **Verify (optional):**
+          - Signing fingerprint (SHA-256): \`${SIGNING_CERT_SHA256}\`
+            The same value is shown in the app under Menu → About & privacy.
+          - File checksums (SHA-256):
+          \`\`\`
+          $(cat SHA256SUMS.txt)
+          \`\`\`
+
+          © 2026 Md. Mazid-Ul-Haque. All rights reserved.
+          NOTES
+          gh release create latest AutoPocketDiary.apk AutoPocketDiary-Auto.apk SHA256SUMS.txt \
+            --title "AutoPocket Diary (latest)" --notes-file notes.md --target "$GITHUB_SHA"

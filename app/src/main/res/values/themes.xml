@@ -1,0 +1,3 @@
+<resources>
+    <style name="Theme.AutoPocket" parent="Theme.AppCompat.DayNight.NoActionBar" />
+</resources>

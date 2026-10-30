@@ -1,0 +1,7 @@
+# Every permission the released APK may ask for. The build fails if the APK asks for anything else
+# (for example android.permission.INTERNET added by a library), so the privacy promise can't break silently.
+android.permission.READ_SMS
+# Fingerprint / phone screen lock for the hidden zone.
+android.permission.USE_BIOMETRIC
+android.permission.USE_FINGERPRINT
+com.mazidulhaque.autopocket.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
