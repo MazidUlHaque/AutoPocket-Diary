@@ -1,0 +1,6 @@
+- **Only your own accounts:** when an SMS names both sides of a transfer, the app now picks your account, not the other person's.
+- **My account numbers** (Accounts tab): type or tick the last 4 digits of your own accounts and cards; then only those count as yours.
+- **Not my account:** mark any account as "someone I send money to / get money from" (its entries move to your own account) or "someone else's account" (its entries are removed). Undo any time with **It's mine**.
+- **Dormant accounts:** closed or unused accounts move out of the way, with their history kept.
+- **Loans:** EMI and installment reminders are no longer counted, and money paid into a loan isn't counted as income. New category: Loan & EMI.
+- Every version now stays on the Releases page, with its Google Play file.

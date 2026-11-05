@@ -119,7 +119,8 @@ jobs:
         run: |
           # The old single moving "latest" release is replaced by versioned ones.
           gh release delete latest --yes --cleanup-tag || true
-          WHATS_NEW="$(git log -1 --format=%B "$GITHUB_SHA" | grep -v -e '^Co-Authored-By:' -e '^Claude-Session:')"
+          # Written for users in docs/WHATS_NEW.md (updated with each release).
+          WHATS_NEW="$(cat docs/WHATS_NEW.md 2>/dev/null || echo 'Improvements and fixes.')"
           cat > notes.md <<NOTES
           **AutoPocket Diary** by Md. Mazid-Ul-Haque. Free, works fully offline, your data never leaves your phone.
 
