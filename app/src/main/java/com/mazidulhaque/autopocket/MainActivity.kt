@@ -68,6 +68,7 @@ import com.mazidulhaque.autopocket.ui.InsightsScreen
 import com.mazidulhaque.autopocket.ui.MainViewModel
 import com.mazidulhaque.autopocket.ui.MoreScreen
 import com.mazidulhaque.autopocket.ui.OnboardingScreen
+import com.mazidulhaque.autopocket.ui.OwnNumbersScreen
 import com.mazidulhaque.autopocket.ui.ReviewScreen
 import com.mazidulhaque.autopocket.ui.SettingsScreen
 import com.mazidulhaque.autopocket.ui.SmsPermissionHelpScreen
@@ -78,7 +79,7 @@ import com.mazidulhaque.autopocket.ui.TransactionsScreen
 private enum class Tab { HOME, ACCOUNTS, INSIGHTS, MORE }
 
 /** Full screens opened on top of the tabs. */
-private enum class Page { NONE, WELCOME, ABOUT, HIDDEN, BACKUP, BUDGETS, SETTINGS, ADD_SMS, REVIEW, TRANSACTIONS, SMS_HELP }
+private enum class Page { NONE, WELCOME, ABOUT, HIDDEN, BACKUP, BUDGETS, SETTINGS, ADD_SMS, REVIEW, TRANSACTIONS, SMS_HELP, OWN_NUMBERS }
 
 class MainActivity : AppCompatActivity() {
     private val vm: MainViewModel by viewModels()
@@ -184,6 +185,7 @@ class MainActivity : AppCompatActivity() {
                         Page.HIDDEN -> HiddenZoneScreen(vm, onBack = back)
                         Page.ABOUT -> AboutScreen(onBack = back, onShowWelcome = { page = Page.WELCOME })
                         Page.REVIEW -> ReviewScreen(vm, onBack = back)
+                        Page.OWN_NUMBERS -> OwnNumbersScreen(vm, onBack = back)
                         Page.SMS_HELP -> SmsPermissionHelpScreen(hasPermission, onRequest = ::requestSms, onBack = { smsGranted = smsAllowed(); back() })
                         Page.TRANSACTIONS -> TransactionsScreen(
                             vm, category, onClearCategory = { category = null }, onBack = back, onEdit = { editing = it },
@@ -201,13 +203,14 @@ class MainActivity : AppCompatActivity() {
                                         vm, hasPermission, unofficial,
                                         onFixPermission = { page = Page.SMS_HELP },
                                         onOpenAddSms = { page = Page.ADD_SMS },
+                                        onOwnNumbers = { page = Page.OWN_NUMBERS },
                                         onOpenReview = { page = Page.REVIEW },
                                         onOpenAccounts = { tab = Tab.ACCOUNTS },
                                         onOpenTransactions = { category = null; page = Page.TRANSACTIONS },
                                         onOpenBudgets = { page = Page.BUDGETS },
                                         onEdit = { editing = it },
                                     )
-                                    Tab.ACCOUNTS -> AccountsScreen(vm)
+                                    Tab.ACCOUNTS -> AccountsScreen(vm, onOwnNumbers = { page = Page.OWN_NUMBERS })
                                     Tab.INSIGHTS -> InsightsScreen(
                                         vm, onOpenCategory = { category = it; page = Page.TRANSACTIONS }, onOpenBudgets = { page = Page.BUDGETS },
                                     )

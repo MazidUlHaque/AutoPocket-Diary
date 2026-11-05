@@ -31,7 +31,7 @@ Created by **Md. Mazid-Ul-Haque**. © 2026, all rights reserved (see [LICENSE](L
 | Work out which account or card was used | Finds each account and card in your SMS (e.g. DBBL ••XXXX, Visa ••XXXX) and keeps separate totals for each |
 | Sort spending into categories | Recognises shops and billers (Bata → Clothing & Shoes, Shwapno → Groceries, DESCO → Electricity, …) and learns from any change you make |
 | Avoid counting money twice | Spots money moving between your own accounts (bank → bank, card → bKash, credit card bill payments) and leaves it out of the totals |
-| Clean up junk | Skips OTPs, offers, statements, failed transactions, receipts and duplicate SMS |
+| Clean up junk | Skips OTPs, offers, statements, failed transactions, receipts, loan/EMI reminders and duplicate SMS |
 | Separate real income | Shows salary, bonus and interest on their own lines, and DPS, insurance and investments as "savings" |
 
 It only asks you when it really can't tell, and only once:
@@ -42,6 +42,15 @@ It only asks you when it really can't tell, and only once:
 
 - **"New account found"**: is this a salary account, savings account, credit card…? You answer once, and from then on everything is sorted per account.
 - **"Needs a quick look"**: a possible transfer between your own accounts that neither SMS confirms, or a foreign-currency purchase that needs its taka amount.
+
+### Only your own accounts
+
+A transfer SMS can name both sides, e.g. *"from your A/C ••1234 to A/C ••9876"*. The app picks the number that is yours, and you stay in control:
+
+- **My account numbers** (Accounts tab): type the last 4 digits of your own accounts and cards, or tick them from the list found in your SMS. Then only those count as yours, and you're never asked about anyone else's.
+- **Not my account** (tap any account): choose *"someone I send money to / get money from"* (its entries move to your own account) or *"someone else's account"* (e.g. a family member's SMS on your phone: its entries are removed). Changed your mind? Tap **It's mine** under *Not your accounts*.
+- **Dormant**: a closed or unused account moves out of the way, with its history kept.
+- **Loans:** EMI and installment reminders are skipped, and money paid into a loan account isn't counted as income. Mark an account as *Loan* to be sure.
 
 ## Two editions: which one?
 
@@ -157,6 +166,8 @@ The app includes [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jaka
 - বেতন, বোনাস ও সুদ আলাদা দেখায়; ডিপিএস, বিমা ও বিনিয়োগ "সঞ্চয়" হিসেবে দেখায়।
 - OTP, অফার, ব্যর্থ লেনদেন আর একই SMS দুবার এলে বাদ দেয়।
 - শুধু যেখানে নিশ্চিত হতে পারে না, সেখানেই একবার জিজ্ঞেস করে।
+
+**শুধু আপনার নিজের অ্যাকাউন্ট:** অ্যাকাউন্ট ট্যাবে **আমার অ্যাকাউন্ট নম্বর**-এ নিজের অ্যাকাউন্ট ও কার্ডের শেষ ৪ সংখ্যা দিন, তখন শুধু সেগুলোই আপনার ধরা হবে। যেকোনো অ্যাকাউন্টে চাপলে **এটি আমার অ্যাকাউন্ট নয়** (যাকে টাকা পাঠান, বা অন্য কারও অ্যাকাউন্ট) ও **নিষ্ক্রিয়** করার সুযোগ আছে। লোন/EMI-এর রিমাইন্ডার SMS বাদ যায়, আর লোন অ্যাকাউন্টে জমা টাকা আয় হিসেবে ধরা হয় না।
 
 **গোপনীয়তা:** সব তথ্য শুধু আপনার ফোনেই থাকে। অ্যাপটির ইন্টারনেট ব্যবহারের অনুমতি নেই, তাই এটি আপনার কোনো তথ্য ডেভেলপার বা অন্য কারও কাছে পাঠাতে পারে না। তথ্য ফোনে এনক্রিপ্ট করে রাখা হয়।
 

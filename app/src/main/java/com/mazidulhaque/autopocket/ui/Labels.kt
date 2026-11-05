@@ -19,7 +19,7 @@ private val categoryNames = mapOf(
     "Entertainment" to R.string.cat_entertainment, "Subscriptions" to R.string.cat_subscriptions, "Rent" to R.string.cat_rent,
     "Bills" to R.string.cat_bills, "Cash Withdrawal" to R.string.cat_cash_withdrawal, "Send Money" to R.string.cat_send_money,
     "Bank Charges & Tax" to R.string.cat_charges, "DPS / Savings" to R.string.cat_dps, "Insurance" to R.string.cat_insurance,
-    "Investments" to R.string.cat_investments, "Other" to R.string.cat_other,
+    "Investments" to R.string.cat_investments, "Loan & EMI" to R.string.cat_loan, "Other" to R.string.cat_other,
     "Salary" to R.string.cat_salary, "Bonus" to R.string.cat_bonus, "Interest" to R.string.cat_interest,
     "Received Money" to R.string.cat_received, "Cash In" to R.string.cat_cash_in,
     "Refund & Cashback" to R.string.cat_refund, "Other Incoming" to R.string.cat_other_incoming,
@@ -36,6 +36,7 @@ private val kindNames = mapOf(
     "Manual" to R.string.kind_expense, "Remittance" to R.string.kind_remittance, "Cashback" to R.string.kind_cashback,
     "DPS" to R.string.cat_dps, "Insurance" to R.string.cat_insurance, "Investment" to R.string.cat_investments,
     "Tax" to R.string.kind_tax, "Bank Charges" to R.string.kind_charges, "Card Bill Payment" to R.string.kind_card_bill,
+    "Loan Repayment" to R.string.kind_loan,
 )
 
 @Composable

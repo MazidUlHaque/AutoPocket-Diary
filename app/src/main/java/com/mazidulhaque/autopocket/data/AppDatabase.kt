@@ -87,6 +87,17 @@ interface TransactionDao {
     @Update
     suspend fun updateAccount(item: Account)
 
+    @Query("UPDATE accounts SET status = :status WHERE `key` = :key")
+    suspend fun setAccountStatus(key: String, status: String?)
+
+    /** Bank SMS entries, to work out again which account each belongs to. */
+    @Query("SELECT * FROM transactions WHERE smsId IS NOT NULL AND rawMessage IS NOT NULL AND deleted = 0 AND sourceType = 'BANK'")
+    suspend fun bankSmsEntries(): List<Transaction>
+
+    /** Brings back entries removed because their account was marked as someone else's. */
+    @Query("UPDATE transactions SET deleted = 0 WHERE accountKey = :key AND deleted = 1 AND smsId IS NOT NULL AND rawMessage IS NOT NULL")
+    suspend fun restoreAccountEntries(key: String)
+
     @Query("UPDATE accounts SET lastBalance = :balance WHERE `key` = :key")
     suspend fun setAccountBalance(key: String, balance: Double)
 
@@ -141,7 +152,7 @@ interface TransactionDao {
 
 data class SmsKey(val timestamp: Long, val amount: Double, val source: String)
 
-@Database(entities = [Transaction::class, CategoryRule::class, Budget::class, Account::class], version = 5, exportSchema = false)
+@Database(entities = [Transaction::class, CategoryRule::class, Budget::class, Account::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactions(): TransactionDao
 
@@ -188,6 +199,13 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** Version 5 → 6: dormant accounts, and accounts that aren't the user's. */
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE accounts ADD COLUMN status TEXT")
+            }
+        }
+
         @Volatile private var instance: AppDatabase? = null
 
         fun get(context: Context): AppDatabase = instance ?: synchronized(this) {
@@ -205,7 +223,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
             return Room.databaseBuilder(context, AppDatabase::class.java, NAME)
                 .openHelperFactory(SupportOpenHelperFactory(key))
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .build()
         }
     }

@@ -184,6 +184,7 @@ internal fun categoryGlyph(category: String?, transfer: Boolean): Pair<ImageVect
         "Cash Withdrawal" -> Glyphs.Cash to 0xFF2E7D32
         Categories.SEND_MONEY -> Glyphs.Send to 0xFF3F4F47
         Categories.CHARGES -> Glyphs.Percent to 0xFF6D4C41
+        Categories.LOAN -> Glyphs.Bill to 0xFF8E5A2B
         Categories.INSURANCE -> Glyphs.Shield to 0xFF8A5A12
         Categories.DPS -> Glyphs.Bars to 0xFF8A5A12
         Categories.INVESTMENTS -> Glyphs.Trend to 0xFF8A5A12

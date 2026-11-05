@@ -18,6 +18,7 @@ import com.mazidulhaque.autopocket.data.isIncoming
 import com.mazidulhaque.autopocket.data.isManual
 import com.mazidulhaque.autopocket.data.isSavings
 import com.mazidulhaque.autopocket.data.total
+import com.mazidulhaque.autopocket.logic.AccountChooser
 import com.mazidulhaque.autopocket.logic.BackupCrypto
 import com.mazidulhaque.autopocket.logic.Categories
 import com.mazidulhaque.autopocket.logic.Csv
@@ -93,9 +94,15 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val accounts: StateFlow<List<Account>> =
         dao.accounts().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    /** Accounts and cards the user hasn't described yet ("New account found"). */
-    val newAccounts: StateFlow<List<Account>> = accounts.map { list -> list.filter { !it.confirmed } }
+    /** The user's own account and card numbers (last digits). Empty = every account found is theirs. */
+    val ownNumbers = MutableStateFlow(SmsImporter.ownNumbers(app))
+
+    /** Accounts and cards the user hasn't described yet ("New account found"); never ones that aren't theirs. */
+    val newAccounts: StateFlow<List<Account>> = accounts.combine(ownNumbers) { list, own -> list.filter { !it.confirmed && isMine(it, own) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Re-sorting entries after the user changed which accounts are theirs. */
+    val reassigning = MutableStateFlow(false)
 
     val needsReview: StateFlow<List<Transaction>> =
         dao.needsReview().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -229,6 +236,49 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         )
     }
 
+    /**
+     * Marks an account as in use (null), dormant, someone else's number ([Account.NOT_MINE]: its entries move
+     * to the user's own account in the same SMS) or someone else's account ([Account.SOMEONE_ELSES]: its
+     * entries are removed). Changing back undoes it.
+     */
+    fun setAccountStatus(account: Account, status: String?) = viewModelScope.launch {
+        reassigning.value = true
+        try {
+            val notMine = setOf(Account.NOT_MINE, Account.SOMEONE_ELSES)
+            var listChanged = false
+            withContext(Dispatchers.IO) {
+                if (account.status == Account.SOMEONE_ELSES && status != Account.SOMEONE_ELSES) dao.restoreAccountEntries(account.key)
+                dao.updateAccount(account.copy(status = status, confirmed = true, parentKey = account.parentKey?.takeIf { status !in notMine }))
+                // Back in use while only listed numbers count: it becomes one of them.
+                val own = ownNumbers.value
+                if (status !in notMine && account.last4 != null && !AccountChooser.isOwn(account.last4, own)) {
+                    saveOwnNumbers(own + account.last4)
+                    listChanged = true
+                }
+            }
+            // Dormant ↔ in use changes nothing about which entries belong where.
+            if (status in notMine || account.status in notMine || listChanged) importer.reassignAccounts()
+        } finally {
+            reassigning.value = false
+        }
+    }
+
+    /** The user's list of own account and card numbers; only those count as theirs (empty list = all). */
+    fun setOwnNumbers(numbers: List<String>) = viewModelScope.launch {
+        reassigning.value = true
+        try {
+            saveOwnNumbers(numbers.mapNotNull { AccountChooser.clean(it) })
+            importer.reassignAccounts()
+        } finally {
+            reassigning.value = false
+        }
+    }
+
+    private fun saveOwnNumbers(numbers: List<String>) {
+        SmsImporter.saveOwnNumbers(getApplication(), numbers)
+        ownNumbers.value = SmsImporter.ownNumbers(getApplication())
+    }
+
     /** "Ask me later": stop asking about this account for now. */
     fun skipAccount(account: Account) = viewModelScope.launch { dao.updateAccount(account.copy(confirmed = true)) }
 
@@ -276,7 +326,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     /** Writes an encrypted backup file. Returns how many entries it holds. */
     suspend fun makeBackup(uri: Uri, password: String, includeHidden: Boolean): Int = withContext(Dispatchers.IO) {
         val items = dao.everything().filter { includeHidden || !it.hidden }
-        val json = BackupFile.write(items, dao.rules(), dao.accountsOnce())
+        val json = BackupFile.write(items, dao.rules(), dao.accountsOnce(), ownNumbers.value)
         val bytes = BackupCrypto.encrypt(json.toByteArray(Charsets.UTF_8), password.toCharArray())
         resolver.openOutputStream(uri, "wt")?.use { it.write(bytes) } ?: error("Could not save the file.")
         items.count { !it.deleted }
@@ -311,6 +361,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             dao.addAccounts(contents.accounts)
             contents.accounts.forEach { dao.updateAccount(it) }
         }
+        saveOwnNumbers(contents.ownNumbers)
     }
 
     /** Writes a spreadsheet (CSV) of the current period, or everything. Hidden-zone entries are never included. */
@@ -354,9 +405,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             val k = t.accountKey ?: t.source
             return byKey[k]?.parentKey ?: k
         }
-        val counted = list.filter { it.counted }
+        // Money coming into a loan account pays the loan off: it isn't income.
+        fun counts(t: Transaction) = t.counted && !(t.isIncoming && t.accountKey?.let { byKey[it] }?.type == Account.LOAN)
+        val counted = list.filter(::counts)
         val accounts = list.filter { !it.ignored }.groupBy(::groupKey).map { (key, items) ->
-            val countedHere = items.filter { it.counted }
+            val countedHere = items.filter(::counts)
             AccountSummary(
                 key = key,
                 account = byKey[key],
@@ -392,6 +445,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     companion object {
+        /** Whether an account is the user's: not marked as someone else's, and in their list of numbers if they made one. */
+        fun isMine(a: Account, own: List<String>): Boolean =
+            a.status != Account.NOT_MINE && a.status != Account.SOMEONE_ELSES &&
+                (a.type == Account.WALLET || AccountChooser.isOwn(a.last4, own))
+
         private const val PREF_FOLDER = "auto_import_folder"
         private const val PREF_FOLDER_SEEN = "auto_import_seen"
     }

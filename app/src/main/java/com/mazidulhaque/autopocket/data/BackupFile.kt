@@ -11,13 +11,19 @@ object BackupFile {
     enum class Problem { DAMAGED, NOT_OURS, TOO_NEW, TOO_LARGE }
     class Invalid(val problem: Problem) : Exception(problem.name)
 
-    data class Contents(val transactions: List<Transaction>, val rules: List<CategoryRule>, val accounts: List<Account> = emptyList())
+    data class Contents(
+        val transactions: List<Transaction>,
+        val rules: List<CategoryRule>,
+        val accounts: List<Account> = emptyList(),
+        /** The user's own account numbers (last digits), if they listed them. */
+        val ownNumbers: List<String> = emptyList(),
+    )
 
     private const val APP = "AutoPocketDiary"
     private const val FORMAT = 2
     private const val MAX_ENTRIES = 500_000
 
-    fun write(transactions: List<Transaction>, rules: List<CategoryRule>, accounts: List<Account>): String {
+    fun write(transactions: List<Transaction>, rules: List<CategoryRule>, accounts: List<Account>, ownNumbers: List<String> = emptyList()): String {
         val list = JSONArray()
         transactions.forEach { t ->
             list.put(
@@ -56,6 +62,7 @@ object BackupFile {
             .put("created", System.currentTimeMillis())
             .put("transactions", list)
             .put("rules", ruleList)
+            .put("ownNumbers", JSONArray(ownNumbers))
             .put("accounts", JSONArray().also { arr ->
                 accounts.forEach { a ->
                     arr.put(
@@ -64,7 +71,7 @@ object BackupFile {
                             .put("creditCard", a.creditCard ?: JSONObject.NULL).put("type", a.type ?: JSONObject.NULL)
                             .put("name", a.name ?: JSONObject.NULL).put("parentKey", a.parentKey ?: JSONObject.NULL)
                             .put("confirmed", a.confirmed).put("firstSeen", a.firstSeen)
-                            .put("lastBalance", a.lastBalance ?: JSONObject.NULL),
+                            .put("lastBalance", a.lastBalance ?: JSONObject.NULL).put("status", a.status ?: JSONObject.NULL),
                     )
                 }
             })
@@ -137,9 +144,14 @@ object BackupFile {
                 type = o.text("type", 30)?.takeIf { it in Account.TYPES }, name = o.text("name", 60),
                 parentKey = o.text("parentKey", 200), confirmed = o.optBoolean("confirmed"),
                 firstSeen = o.optLong("firstSeen"), lastBalance = o.number("lastBalance"),
+                status = o.text("status", 20)?.takeIf { it in Account.STATUSES },
             )
         }
-        return Contents(transactions, rules, accounts)
+        val ownList = root.optJSONArray("ownNumbers") ?: JSONArray()
+        val ownNumbers = (0 until minOf(ownList.length(), 100)).mapNotNull { i ->
+            ownList.optString(i).filter(Char::isDigit).takeLast(4).takeIf { it.length >= 3 }
+        }
+        return Contents(transactions, rules, accounts, ownNumbers)
     }
 
     private fun String.clip(max: Int) = if (length > max) substring(0, max) else this

@@ -12,6 +12,9 @@ object SmsParser {
     enum class SourceType { BANK, MOBILE_WALLET }
     enum class Direction { IN, OUT }
 
+    /** An account or card number in an SMS (last 4 digits, or fewer if that's all the SMS shows). */
+    data class AccountRef(val last4: String, val isCard: Boolean)
+
     data class Parsed(
         /** Bank or wallet name, e.g. "Dutch-Bangla Bank", "bKash". */
         val source: String,
@@ -36,6 +39,11 @@ object SmsParser {
         val balance: Double? = null,
         /** Another bank named in the SMS (e.g. "from DUTCH-BANGLA BANK"), a strong own-transfer hint. */
         val otherBank: String? = null,
+        /**
+         * Every account and card number in the SMS, most likely the user's own first. A transfer SMS can
+         * name both sides ("from your A/C 1234 to A/C 9876"); [accountLast4] is the first of these.
+         */
+        val accounts: List<AccountRef> = emptyList(),
     )
 
     private data class KnownSource(val name: String, val type: SourceType, val patterns: List<Regex>)
@@ -97,9 +105,15 @@ object SmsParser {
     private val skipPatterns = rx(
         "\\botp\\b", "one[\\s-]*time\\s*(?:password|pin|code)", "verification\\s*code", "security\\s*code",
         "activation\\s*code", "\\bpassword\\b", "\\bfailed\\b", "unsuccessful", "declined", "insufficient",
-        "\\bwill\\s+be\\s+(?:debited|credited)", "being\\s+reserved", "\\brequest(?:ed)?\\s+(?:money|tk|bdt)",
+        "\\bwill\\s+be\\s+(?:auto[\\s-]*)?(?:debited|credited|deducted|realized|realised|collected|charged)",
+        "\\bto\\s+be\\s+(?:debited|deducted|realized|realised|collected|paid)", "being\\s+reserved", "\\brequest(?:ed)?\\s+(?:money|tk|bdt)",
         "payment\\s+due", "due\\s+date", "minimum\\s+(?:amount\\s+)?due", "min\\.?\\s*payment", "\\bbill\\s+for\\s+\\w+-?\\d",
-        "^balance\\s+of\\s+your", "sum\\s+assured", "maturity", "thanks\\s+for\\s+shopping", "\\bstatement\\b",
+        "^balance\\s+of\\s+your",
+        // Loan / EMI / bill reminders: they ask for money, they don't move it.
+        "\\b(?:is|are|was|falls?|becomes?|will\\s+be)\\s+(?:over)?due\\b", "\\bdue\\s+(?:on|by|from|date)\\b", "\\boverdue\\b", "\\bpast\\s+due\\b", "\\breminder\\b",
+        "\\bupcoming\\s+(?:emi|installment|instalment|payment)", "(?:emi|installment|instalment)\\s+(?:date|is\\s+on)\\b",
+        "(?:keep|maintain|ensure)\\s+(?:sufficient|enough|adequate|required|available)\\s+(?:balance|fund)",
+        "(?:please|kindly)\\s+(?:pay|deposit|repay|clear|settle)\\b", "to\\s+avoid\\s+(?:late|penalty|additional|overdue|any)", "sum\\s+assured", "maturity", "thanks\\s+for\\s+shopping", "\\bstatement\\b",
     )
 
     private val bankHint = Regex("a/c|acct|account|card", RegexOption.IGNORE_CASE)
@@ -119,6 +133,13 @@ object SmsParser {
         rule("received\\s+deposit\\s+of[^\\n]{0,40}from\\s+(?:visa|master|amex|card|bank)", Direction.IN, "Add Money", transfer = true),
         rule("bkash[_\\s-]*add\\s*money|nagad[_\\s-]*add\\s*money|\\badd\\s*money\\b", null, "Add Money", transfer = true),
         rule("\\bown\\s+(?:a/c|acc|account)|between\\s+(?:your|own)\\s+accounts?", null, "Transfer", transfer = true),
+        // Money arriving in a loan account pays the loan off: not income.
+        rule(
+            "credited\\s+(?:to|in(?:to)?)\\s+(?:your\\s+)?loan|loan\\s+(?:a/c|acc(?:oun)?t?)[^\\n]{0,60}credited|" +
+                "loan\\s+(?:installment|instalment|repayment)[^\\n]{0,60}(?:credited|received|realized|realised|recovered|adjusted)",
+            Direction.IN, "Loan Repayment", transfer = true,
+        ),
+        rule("\\bemi\\b|loan\\s+(?:installment|instalment|repayment|recovery)|(?:installment|instalment)\\s+(?:of\\s+)?(?:your\\s+)?loan", Direction.OUT, "Loan Repayment"),
         rule("\\bsalary\\b", Direction.IN, "Salary"),
         rule("\\bbonus\\b", Direction.IN, "Bonus"),
         rule("interest\\s+credit|\\binterest\\s+for\\b|interest\\s+(?:has\\s+been\\s+)?credited|profit\\s+credit", Direction.IN, "Interest"),
@@ -275,10 +296,9 @@ object SmsParser {
             kind = "Bank Charges"
         }
 
-        val card = cardEnding.find(body)?.groupValues?.get(1)
-            ?: cardNumber.find(body)?.groupValues?.get(1)?.takeLast(4)?.takeIf { it.all(Char::isDigit) }
-        val account = accountNumber.find(body)?.groupValues?.get(1)?.takeLast(4)?.takeIf { it.all(Char::isDigit) }
-        val isCard = card != null
+        val refs = findAccounts(body, direction)
+        val first = refs.firstOrNull()
+        val isCard = first?.isCard == true
         val creditCard = when {
             !isCard -> null
             creditCardWords.containsMatchIn(body) -> true
@@ -298,14 +318,46 @@ object SmsParser {
             fee = fee,
             kind = kind,
             counterparty = findCounterparty(body, kind),
-            transfer = rule?.transfer == true || toWallet,
-            accountLast4 = card ?: account,
+            // Money credited to a loan pays it off, whichever rule spotted it.
+            transfer = rule?.transfer == true || toWallet || (kind == "Loan Repayment" && direction == Direction.IN),
+            accountLast4 = first?.last4,
             isCard = isCard,
             creditCard = creditCard,
             currency = currency,
             balance = balancePattern.find(body)?.let { m -> toNumber(m.groupValues[1].ifEmpty { m.groupValues[2] }) },
             otherBank = otherBankPattern.find(body)?.groupValues?.get(1)?.trim(),
+            accounts = refs,
         )
+    }
+
+    private val yourBefore = Regex("\\b(?:your|ur)\\s+(?:[a-z]+\\s+){0,2}$", RegexOption.IGNORE_CASE)
+    private val toBefore = Regex("(?:\\bto|beneficiary|receiver|recipient)\\s*:?\\s*$", RegexOption.IGNORE_CASE)
+    private val fromBefore = Regex("(?:\\bfrom|\\bby|sender)\\s*:?\\s*$", RegexOption.IGNORE_CASE)
+
+    /**
+     * Account and card numbers in the SMS, the user's own most likely first: one after "your" wins, one
+     * after "to" (money going out) or "from" (money coming in) is probably the other person's. Otherwise
+     * cards come before accounts, then the order they appear in.
+     */
+    private fun findAccounts(body: String, direction: Direction): List<AccountRef> {
+        val found = mutableListOf<Pair<AccountRef, Int>>()
+        fun add(m: MatchResult, isCard: Boolean) {
+            val last4 = m.groupValues[1].takeLast(4).filter(Char::isDigit).takeIf { it.length >= 3 } ?: return
+            val ref = AccountRef(last4, isCard)
+            if (found.any { it.first == ref }) return
+            val before = body.substring(maxOf(0, m.range.first - 30), m.range.first)
+            val score = when {
+                yourBefore.containsMatchIn(before) -> -1
+                direction == Direction.OUT && toBefore.containsMatchIn(before) -> 1
+                direction == Direction.IN && fromBefore.containsMatchIn(before) -> 1
+                else -> 0
+            }
+            found += ref to score
+        }
+        cardEnding.findAll(body).forEach { add(it, true) }
+        cardNumber.findAll(body).forEach { add(it, true) }
+        accountNumber.findAll(body).forEach { add(it, false) }
+        return found.sortedBy { it.second }.map { it.first }
     }
 
     /** Direction from general keywords, and whether it came from a "strong" word (credited/debited/deposit). */

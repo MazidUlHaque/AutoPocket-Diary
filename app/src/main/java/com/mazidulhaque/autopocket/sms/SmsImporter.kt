@@ -9,6 +9,7 @@ import com.mazidulhaque.autopocket.data.Account
 import com.mazidulhaque.autopocket.data.Transaction
 import com.mazidulhaque.autopocket.data.TransactionDao
 import com.mazidulhaque.autopocket.data.isIncoming
+import com.mazidulhaque.autopocket.logic.AccountChooser
 import com.mazidulhaque.autopocket.logic.Categories
 import com.mazidulhaque.autopocket.logic.Duplicates
 import com.mazidulhaque.autopocket.logic.SmsDate
@@ -66,6 +67,12 @@ class SmsImporter(private val context: Context, private val dao: TransactionDao)
     suspend fun maintenance() = withContext(Dispatchers.IO) {
         repairOldEntries()
         fillMissingCategories()
+        // Once, after the update that learned to tell the user's account from the other side of a transfer.
+        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean(PREF_SORTED_V2, false)) {
+            reassignAccounts()
+            prefs.edit().putBoolean(PREF_SORTED_V2, true).apply()
+        }
     }
 
     /** Saves transactions from [preview]. Returns how many were new. */
@@ -123,15 +130,49 @@ class SmsImporter(private val context: Context, private val dao: TransactionDao)
     private suspend fun reader() = Reader(
         rules = dao.rules().associate { it.merchant to it.category },
         known = dao.smsKeys().map { Triple(it.timestamp, it.amount, it.source) }.toHashSet(),
+        owner = owner(),
     )
 
+    /** What the user has said about their accounts: which numbers aren't theirs, and (optionally) which are. */
+    private suspend fun owner(): Owner {
+        val accounts = dao.accountsOnce()
+        return Owner(
+            notMine = accounts.filter { it.status == Account.NOT_MINE }.map { it.key }.toSet(),
+            ignored = accounts.filter { it.status == Account.SOMEONE_ELSES }.map { it.key }.toSet(),
+            own = ownNumbers(context),
+        )
+    }
+
     /** Parses SMS into transactions, skipping ones already in the app (by date + amount + account). */
-    private class Reader(private val rules: Map<String, String>, private val known: Set<Triple<Long, Double, String>>) {
+    private class Reader(private val rules: Map<String, String>, private val known: Set<Triple<Long, Double, String>>, private val owner: Owner) {
         fun read(sender: String, body: String, date: Long, smsId: Long, fallbackSource: String? = null): Transaction? {
             val p = SmsParser.parse(sender, body) ?: return null
-            val t = toTransaction(p, body, date, smsId, rules, fallbackSource)
+            val source = p.source.ifBlank { fallbackSource ?: "SMS" }
+            if (p.sourceType == SmsParser.SourceType.BANK && owner.choose(source, p) == AccountChooser.Choice.Drop) return null
+            val t = toTransaction(p, body, date, smsId, rules, fallbackSource, owner)
             return t.takeUnless { Triple(date, t.amount, t.source) in known }
         }
+    }
+
+    /**
+     * Works out again which account each bank SMS belongs to, after the user said an account isn't
+     * theirs (or is again), or changed their list of own numbers. Entries of an account that is
+     * someone else's are removed (and come back if the user changes their mind).
+     */
+    suspend fun reassignAccounts() = withContext(Dispatchers.IO) {
+        val owner = owner()
+        val changed = dao.bankSmsEntries().mapNotNull { t ->
+            val p = SmsParser.parse(t.source, t.rawMessage!!) ?: return@mapNotNull null
+            when (val choice = owner.choose(t.source, p)) {
+                AccountChooser.Choice.Drop -> t.copy(deleted = true)
+                else -> owner.key(t.source, choice).takeIf { it != t.accountKey }?.let { t.copy(accountKey = it) }
+            }
+        }
+        if (changed.isEmpty()) return@withContext
+        dao.updateAll(changed)
+        val kept = changed.filter { !it.deleted }
+        registerAccounts(kept)
+        if (kept.isNotEmpty()) matchTransfers(kept.minOf { it.timestamp }, kept.maxOf { it.timestamp })
     }
 
     /** Saves new transactions, then links accounts, removes duplicate SMS and matches own transfers. */
@@ -230,6 +271,7 @@ class SmsImporter(private val context: Context, private val dao: TransactionDao)
         if (old.isEmpty()) return
         Categories.renamed.forEach { (from, to) -> dao.renameCategory(from, to) }
         val rules = dao.rules().associate { it.merchant to it.category }
+        val owner = owner()
         val fixed = old.map { t ->
             // The sender wasn't stored; the old account name works as one ("Rocket" was always DBBL's short code).
             val sender = if (t.source == "Rocket") "16216" else t.source
@@ -238,7 +280,7 @@ class SmsImporter(private val context: Context, private val dao: TransactionDao)
                 // Now known not to be a transaction (receipt, notice, insurance info): remove unless the user edited it.
                 if (t.edited) t.copy(accountKey = t.source) else t.copy(deleted = true, accountKey = t.source)
             } else {
-                val fresh = toTransaction(p, t.rawMessage, t.timestamp, t.smsId!!, rules, null)
+                val fresh = toTransaction(p, t.rawMessage, t.timestamp, t.smsId!!, rules, null, owner)
                 fresh.copy(
                     id = t.id,
                     title = t.title, note = t.note, ignored = t.ignored, hidden = t.hidden, deleted = t.deleted,
@@ -264,9 +306,36 @@ class SmsImporter(private val context: Context, private val dao: TransactionDao)
         )
     }
 
+    /** Picks the user's own account among the numbers in an SMS (see [AccountChooser]). */
+    class Owner(private val notMine: Set<String>, private val ignored: Set<String>, private val own: List<String>) {
+        fun choose(source: String, p: SmsParser.Parsed): AccountChooser.Choice = AccountChooser.choose(
+            source, p.accounts.map { AccountChooser.Candidate(it.last4, it.isCard) }, notMine, ignored, own,
+        )
+
+        /** The account key for a choice: the chosen account, or just the bank. */
+        fun key(source: String, choice: AccountChooser.Choice): String = when (choice) {
+            is AccountChooser.Choice.Use -> Account.key(source, choice.candidate.last4, choice.candidate.isCard, wallet = false)
+            else -> source
+        }
+    }
+
     companion object {
+        private const val PREF_OWN = "own_numbers"
+        private const val PREF_SORTED_V2 = "accounts_sorted_v2"
+
+        /** The user's own account and card numbers (last digits). Empty = every account found counts as theirs. */
+        fun ownNumbers(context: Context): List<String> =
+            context.getSharedPreferences("settings", Context.MODE_PRIVATE).getString(PREF_OWN, "")!!
+                .split(',').filter { it.isNotBlank() }
+
+        fun saveOwnNumbers(context: Context, numbers: List<String>) {
+            context.getSharedPreferences("settings", Context.MODE_PRIVATE).edit()
+                .putString(PREF_OWN, numbers.distinct().joinToString(",")).apply()
+        }
+
         fun toTransaction(
             p: SmsParser.Parsed, body: String, date: Long, smsId: Long, rules: Map<String, String>, fallbackSource: String?,
+            owner: Owner? = null,
         ): Transaction {
             val source = p.source.ifBlank { fallbackSource ?: "SMS" }
             val incoming = p.direction == SmsParser.Direction.IN
@@ -286,7 +355,12 @@ class SmsImporter(private val context: Context, private val dao: TransactionDao)
                 category = Categories.merchantKey(p.counterparty)?.let { rules[it] }
                     ?: Categories.guess(incoming, p.kind, p.counterparty, body),
                 transfer = p.transfer,
-                accountKey = if (wallet || p.accountLast4 != null) Account.key(source, p.accountLast4, p.isCard, wallet) else source,
+                accountKey = when {
+                    wallet -> Account.key(source, null, isCard = false, wallet = true)
+                    owner != null -> owner.key(source, owner.choose(source, p))
+                    p.accountLast4 != null -> Account.key(source, p.accountLast4, p.isCard, wallet = false)
+                    else -> source
+                },
                 currency = if (foreign) p.currency else null,
                 foreignAmount = if (foreign) p.amount else null,
                 balance = p.balance,

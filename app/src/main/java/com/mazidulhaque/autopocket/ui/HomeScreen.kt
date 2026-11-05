@@ -55,6 +55,7 @@ fun HomeScreen(
     unofficialCopy: Boolean,
     onFixPermission: () -> Unit,
     onOpenAddSms: () -> Unit,
+    onOwnNumbers: () -> Unit,
     onOpenReview: () -> Unit,
     onOpenAccounts: () -> Unit,
     onOpenTransactions: () -> Unit,
@@ -68,6 +69,7 @@ fun HomeScreen(
     val budgetStatus by vm.budgetStatus.collectAsState()
     val accounts by vm.accounts.collectAsState()
     val newAccounts by vm.newAccounts.collectAsState()
+    val own by vm.ownNumbers.collectAsState()
     var periodSheet by remember { mutableStateOf(false) }
     var pickingRange by remember { mutableStateOf(false) }
     var askedLater by rememberSaveable { mutableStateOf(false) }
@@ -126,7 +128,7 @@ fun HomeScreen(
         }
         item { HeroCard(summary, stringResource(R.string.net_this_period)) }
 
-        val shownAccounts = summary.accounts.filter { it.moneyIn + it.moneyOut + it.billPaid > 0 }
+        val shownAccounts = summary.accounts.filter { it.moneyIn + it.moneyOut + it.billPaid > 0 && it.account?.status == null }
         if (shownAccounts.isNotEmpty()) {
             item { SectionHeader(stringResource(R.string.your_accounts), stringResource(R.string.see_all), onOpenAccounts) }
             item {
@@ -175,10 +177,12 @@ fun HomeScreen(
             AccountSheet(
                 account = acct,
                 accounts = accounts,
-                position = accounts.count { it.confirmed && it.type != Account.WALLET } + 1,
-                total = accounts.count { it.type != Account.WALLET },
+                position = accounts.count { it.confirmed && it.type != Account.WALLET && MainViewModel.isMine(it, own) } + 1,
+                total = accounts.count { it.type != Account.WALLET && MainViewModel.isMine(it, own) },
                 onSave = { type, name, parent -> vm.describeAccount(acct, type, name, parent) },
                 onLater = { askedLater = true },
+                onStatus = { vm.setAccountStatus(acct, it) },
+                onOwnNumbers = { askedLater = true; onOwnNumbers() },
             )
         }
     }

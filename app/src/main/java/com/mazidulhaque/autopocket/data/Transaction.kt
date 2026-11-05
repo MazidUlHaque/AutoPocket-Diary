@@ -110,6 +110,8 @@ data class Account(
     val firstSeen: Long,
     /** Latest balance (or credit card available limit) seen in an SMS. */
     val lastBalance: Double?,
+    /** Null = in use; [DORMANT], [NOT_MINE] or [SOMEONE_ELSES], set by the user. */
+    val status: String? = null,
 ) {
     companion object {
         const val SAVINGS = "SAVINGS"
@@ -122,6 +124,14 @@ data class Account(
         const val WALLET = "WALLET"
         const val OTHER = "OTHER"
         val TYPES = listOf(SAVINGS, CURRENT, SALARY, CREDIT_CARD, DEBIT_CARD, DPS, LOAN, WALLET, OTHER)
+
+        /** Closed or not used any more: kept, with its history, out of the way. */
+        const val DORMANT = "DORMANT"
+        /** Someone else's number seen in the user's SMS (the other side of a transfer). Its entries move to the user's own account. */
+        const val NOT_MINE = "NOT_MINE"
+        /** An account that isn't the user's at all (e.g. a family member's SMS on this phone): its entries aren't counted. */
+        const val SOMEONE_ELSES = "SOMEONE_ELSES"
+        val STATUSES = listOf(DORMANT, NOT_MINE, SOMEONE_ELSES)
 
         fun key(source: String, last4: String?, isCard: Boolean, wallet: Boolean): String = when {
             wallet -> "$source|W|"

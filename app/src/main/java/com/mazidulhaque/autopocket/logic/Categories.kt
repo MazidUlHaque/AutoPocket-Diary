@@ -16,6 +16,7 @@ object Categories {
     const val INSURANCE = "Insurance"
     const val INVESTMENTS = "Investments"
     const val CHARGES = "Bank Charges & Tax"
+    const val LOAN = "Loan & EMI"
 
     /** Money out that is still the user's money (shown on its own "Savings & investments" line). */
     val savings = setOf(DPS, INSURANCE, INVESTMENTS)
@@ -23,7 +24,7 @@ object Categories {
     val expense = listOf(
         "Groceries", "Food & Dining", "Clothing & Shoes", "Shopping", "Electricity", "Gas", "Water", "Internet",
         "Mobile Recharge", "Transport", "Health", "Education", "Entertainment", "Subscriptions", "Rent", "Bills",
-        "Cash Withdrawal", SEND_MONEY, CHARGES, DPS, INSURANCE, INVESTMENTS, OTHER,
+        "Cash Withdrawal", SEND_MONEY, LOAN, CHARGES, DPS, INSURANCE, INVESTMENTS, OTHER,
     )
     val incoming = listOf(SALARY, BONUS, INTEREST, "Received Money", "Cash In", "Refund & Cashback", OTHER_INCOMING)
 
@@ -100,6 +101,7 @@ object Categories {
             "Insurance" -> return INSURANCE
             "Investment" -> return INVESTMENTS
             "Tax", "Bank Charges" -> return CHARGES
+            "Loan Repayment" -> return LOAN
         }
         // A known merchant (or a hint like "Ref house rent") beats the generic transaction type.
         counterparty?.let { c -> merchantRules.firstOrNull { (_, ps) -> ps.any { it.containsMatchIn(c) } }?.let { return it.first } }

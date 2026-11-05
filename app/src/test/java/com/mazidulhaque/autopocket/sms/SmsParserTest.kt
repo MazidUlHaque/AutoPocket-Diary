@@ -274,4 +274,28 @@ class SmsParserTest {
         val q = parse("IFIC BANK", "25-09-2026 6:22:26 AM\nBDT 600.00 Card Maintenance Fee\nBDT 32,867.70 Balance\nA/C 01234***5678")
         assertEquals(32867.70, q.balance!!, 0.001)
     }
+
+    @Test fun ownAccountIsPickedWhenTheSmsNamesBothSides() {
+        val inc = parse("16216", "Your A/C ***5678 credited by Tk5,000.00 from A/C 1234***9876 (NPSB) on 05-11-2026. C/B Tk20,000.00")
+        assertEquals("5678", inc.accountLast4)
+        assertEquals(listOf("5678", "9876"), inc.accounts.map { it.last4 })
+        val received = parse("16216", "Tk5,000.00 received from A/C 1234***9876 to your A/C ***5678 on 05-11-2026.")
+        assertEquals("5678", received.accountLast4)
+        val out = parse("16216", "Tk2,000.00 sent to A/C 1234***9876 from A/C ***1234 on 05-11-2026. Thank you.")
+        assertEquals(Direction.OUT, out.direction); assertEquals("1234", out.accountLast4)
+    }
+
+    @Test fun loanAndEmiRemindersAreNotTransactions() {
+        assertNull(SmsParser.parse("16216", "Dear Customer, your loan installment of BDT 12,500.00 is due on 10-Nov-2026. Please keep sufficient balance in A/C ***1234."))
+        assertNull(SmsParser.parse("CITY BANK", "Please deposit Tk 12,500 to your loan A/C ***1234 by 10/11/2026 to avoid late fee."))
+        assertNull(SmsParser.parse("BRAC BANK", "Reminder: EMI of BDT 8,000.00 for your card ending 4321 falls due on 15/11/2026."))
+        assertNull(SmsParser.parse("16216", "Your EMI of Tk 12,500.00 will be auto debited from A/C ***1234 on 10-11-2026."))
+    }
+
+    @Test fun loanRepaymentIsNotIncome() {
+        val credit = parse("16216", "Your loan A/C ***4321 has been credited by BDT 12,500.00 on 05-11-2026.")
+        assertEquals(Direction.IN, credit.direction); assertEquals("Loan Repayment", credit.kind); assertEquals(true, credit.transfer)
+        val emi = parse("16216", "Tk 12,500.00 debited from your A/C ***1234 for EMI of loan A/C ***4321 on 05-11-2026.")
+        assertEquals(Direction.OUT, emi.direction); assertEquals("Loan Repayment", emi.kind); assertEquals("1234", emi.accountLast4)
+    }
 }

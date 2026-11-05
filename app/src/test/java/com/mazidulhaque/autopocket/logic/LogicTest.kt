@@ -27,6 +27,7 @@ class CategoriesTest {
         assertEquals("Mobile Recharge", out("Mobile Recharge", null))
         assertEquals("Bills", out("Bill Payment", "XYZ SERVICES"))
         assertEquals(Categories.OTHER, out("Card Purchase", "UNKNOWN SHOP"))
+        assertEquals(Categories.LOAN, out("Loan Repayment", null))
     }
 
     @Test fun referenceTextHelps() {
@@ -166,4 +167,36 @@ class SmsDateTest {
     @Test fun iso() = assertEquals("2026-10-25T09:05", d("Txn on 2026-10-25 09:05:12"))
     @Test fun noDate() = assertEquals(null, d("Send Money Tk 500.00 to 01812345678 successful."))
     @Test fun invalidDateIgnored() = assertEquals(null, d("Ref 45/99/2026"))
+}
+
+class AccountChooserTest {
+    private val a1234 = AccountChooser.Candidate("1234", false)
+    private val a9876 = AccountChooser.Candidate("9876", false)
+    private val bank = "Dutch-Bangla Bank"
+    private fun choose(vararg c: AccountChooser.Candidate, notMine: Set<String> = emptySet(), ignored: Set<String> = emptySet(), own: List<String> = emptyList()) =
+        AccountChooser.choose(bank, c.toList(), notMine, ignored, own)
+
+    @Test fun firstNumberByDefault() {
+        assertEquals(AccountChooser.Choice.Use(a1234), choose(a1234, a9876))
+        assertEquals(AccountChooser.Choice.BankOnly, choose())
+    }
+
+    @Test fun notMineIsSkipped() {
+        assertEquals(AccountChooser.Choice.Use(a9876), choose(a1234, a9876, notMine = setOf("$bank|A|1234")))
+        assertEquals(AccountChooser.Choice.BankOnly, choose(a1234, notMine = setOf("$bank|A|1234")))
+    }
+
+    @Test fun someoneElsesAccountIsDroppedUnlessAnOwnAccountIsInTheSms() {
+        assertEquals(AccountChooser.Choice.Drop, choose(a1234, ignored = setOf("$bank|A|1234")))
+        assertEquals(AccountChooser.Choice.Use(a9876), choose(a1234, a9876, ignored = setOf("$bank|A|1234")))
+    }
+
+    @Test fun ownNumbersDecide() {
+        assertEquals(AccountChooser.Choice.Use(a9876), choose(a1234, a9876, own = listOf("0012345679876")))
+        assertEquals(AccountChooser.Choice.BankOnly, choose(a1234, own = listOf("5555")))
+        assertEquals(true, AccountChooser.matches("1234", "234"))
+        assertEquals(false, AccountChooser.matches("1234", "34"))
+        assertEquals("1234", AccountChooser.clean(" 01-234 5671234 "))
+        assertEquals(null, AccountChooser.clean("12"))
+    }
 }
