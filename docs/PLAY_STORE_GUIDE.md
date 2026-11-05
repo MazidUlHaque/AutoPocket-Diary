@@ -7,7 +7,7 @@ This guide takes you step by step from "no developer account" to "live on Play".
 | What | Where |
 |---|---|
 | Play edition of the app (auto SMS reading, no donate, separate package `com.mazidulhaque.autopocketdiary`) | `play` flavor in `app/build.gradle.kts` |
-| Upload file (`.aab`) | Built by GitHub Actions on every push to `main`: artifact **AutoPocketDiary-Play-bundle** |
+| Upload file (`.aab`) | Built on every push to `main` and attached to that version's release: **AutoPocketDiary-Play.aab** on the [Releases page](https://github.com/MazidUlHaque/AutoPocket-Diary/releases) |
 | Privacy policy | <https://github.com/MazidUlHaque/AutoPocket-Diary/blob/main/docs/PRIVACY.md> |
 | App icon 512×512, feature graphic 1024×500 | `docs/play-store/` |
 | Phone screenshots (status bar and account numbers hidden) | `docs/screenshots/` |
@@ -40,12 +40,11 @@ The package name is set by the first upload: `com.mazidulhaque.autopocketdiary`.
 
 ## Step 3: Get the upload file (.aab)
 
-1. Open <https://github.com/MazidUlHaque/AutoPocket-Diary/actions> and click the newest green run on `main`.
-2. Scroll to **Artifacts** and download **AutoPocketDiary-Play-bundle**. Unzip it to get `AutoPocketDiary-Play.aab`.
-   - Artifacts are deleted after 90 days. To make a fresh one, re-run the workflow (Actions → *Build APK* → **Run workflow**) or push any change.
-3. Each build has a higher version code (the run number), which Play requires for every new upload.
+1. Open the [Releases page](https://github.com/MazidUlHaque/AutoPocket-Diary/releases). Each version (e.g. **AutoPocket Diary 1.0.34**) has its own entry; the newest is marked **Latest**.
+2. Under that version's **Assets**, download **`AutoPocketDiary-Play.aab`**. Older versions stay listed, so you can always find the exact file you uploaded before.
+3. Each version has a higher version code (the number after `1.0.`), which Play requires for every new upload. Upload a version newer than the one already in Play Console.
 
-The `.aab` is **not** put on the public download page, since it's only for Play.
+The `.aab` can't be installed on a phone; it's only for Play Console. (It is also kept for 90 days under Actions → the run → Artifacts → **AutoPocketDiary-Play-bundle**.)
 
 ### About signing (important)
 
@@ -216,7 +215,7 @@ Then update the "Google Play edition" note in the README with the Play link.
 ## Updating the app later
 
 1. Push changes to `main`. GitHub Actions builds a new `.aab` with a higher version code.
-2. Download **AutoPocketDiary-Play-bundle** from that run.
+2. Download **`AutoPocketDiary-Play.aab`** from the newest (**Latest**) release on the Releases page.
 3. Play Console → Production → **Create release** → upload → release notes → rollout.
 
 The GitHub APKs (`AutoPocketDiary.apk`, `AutoPocketDiary-Auto.apk`) keep updating as before. The Play app uses a different package name and signature, so it installs **alongside** the GitHub versions, not over them. Users who move to the Play version can carry their data with a backup file: **More → Backup** in the old app, then restore in the Play app.
